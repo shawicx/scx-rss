@@ -1,0 +1,356 @@
+use crate::core::error::AppResult;
+use crate::core::models::{Article, ArticleFilter, Feed, NewArticle, NewFeed};
+use chrono::Utc;
+use rusqlite::{Connection, params};
+use std::path::PathBuf;
+use tauri::{AppHandle, Manager};
+
+/// 获取数据库文件路径
+pub fn get_db_path(app: &AppHandle) -> PathBuf {
+    app.path()
+        .app_data_dir()
+        .expect("Failed to get app data dir")
+        .join("scx_rss.db")
+}
+
+/// 初始化数据库，创建所有表和索引
+pub fn db_init(app: &AppHandle) -> AppResult<()> {
+    let db_path = get_db_path(app);
+
+    // 确保目录存在
+    if let Some(parent) = db_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+
+    let conn = Connection::open(&db_path)?;
+
+    // 创建 feeds 表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS feeds (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            url TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            description TEXT,
+            icon_url TEXT,
+            category TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            last_fetched_at TEXT
+        )",
+        [],
+    )?;
+
+    // 创建 articles 表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            feed_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            link TEXT NOT NULL,
+            content TEXT,
+            description TEXT,
+            author TEXT,
+            published_at TEXT,
+            is_read BOOLEAN NOT NULL DEFAULT 0,
+            is_starred BOOLEAN NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE,
+            UNIQUE(feed_id, link)
+        )",
+        [],
+    )?;
+
+    // 创建 fetch_logs 表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS fetch_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            feed_id INTEGER NOT NULL,
+            success BOOLEAN NOT NULL,
+            error_message TEXT,
+            article_count INTEGER NOT NULL,
+            duration_ms INTEGER NOT NULL,
+            fetched_at TEXT NOT NULL,
+            FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
+        )",
+        [],
+    )?;
+
+    // 创建索引以提高查询性能
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_articles_feed_id ON articles(feed_id)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at DESC)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_articles_is_read ON articles(is_read)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_articles_is_starred ON articles(is_starred)",
+        [],
+    )?;
+
+    tracing::info!("Database initialized at: {:?}", db_path);
+    Ok(())
+}
+
+/// 插入新的 Feed
+pub fn db_insert_feed(app: &AppHandle, new_feed: &NewFeed) -> AppResult<Feed> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let now = Utc::now();
+    let created_at = now.to_rfc3339();
+    let updated_at = now.to_rfc3339();
+
+    conn.execute(
+        "INSERT INTO feeds (url, title, description, icon_url, category, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        params![
+            new_feed.url,
+            new_feed.title,
+            new_feed.description,
+            new_feed.icon_url,
+            new_feed.category,
+            created_at,
+            updated_at,
+        ],
+    )?;
+
+    let id = conn.last_insert_rowid();
+
+    // 查询并返回完整的 Feed 对象
+    let feed = conn.query_row(
+        "SELECT id, url, title, description, icon_url, category, created_at, updated_at, last_fetched_at
+         FROM feeds WHERE id = ?1",
+        params![id],
+        |row| {
+            Ok(Feed {
+                id: row.get(0)?,
+                url: row.get(1)?,
+                title: row.get(2)?,
+                description: row.get(3)?,
+                icon_url: row.get(4)?,
+                category: row.get(5)?,
+                created_at: row.get::<_, String>(6)?.parse().unwrap(),
+                updated_at: row.get::<_, String>(7)?.parse().unwrap(),
+                last_fetched_at: row
+                    .get::<_, Option<String>>(8)?
+                    .map(|s| s.parse().unwrap()),
+            })
+        },
+    )?;
+
+    Ok(feed)
+}
+
+/// 批量插入文章（使用事务）
+pub fn db_insert_articles(app: &AppHandle, articles: &[NewArticle]) -> AppResult<usize> {
+    if articles.is_empty() {
+        return Ok(0);
+    }
+
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let tx = conn.unchecked_transaction()?;
+
+    let mut inserted_count = 0;
+    for article in articles {
+        let now = Utc::now().to_rfc3339();
+
+        match tx.execute(
+            "INSERT OR IGNORE INTO articles
+             (feed_id, title, link, content, description, author, published_at, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            params![
+                article.feed_id,
+                article.title,
+                article.link,
+                article.content,
+                article.description,
+                article.author,
+                article.published_at.map(|dt| dt.to_rfc3339()),
+                now,
+            ],
+        ) {
+            Ok(rows_affected) => inserted_count += rows_affected,
+            Err(e) => {
+                tracing::warn!("Failed to insert article: {}", e);
+            }
+        }
+    }
+
+    tx.commit()?;
+    tracing::info!("Inserted {} articles", inserted_count);
+    Ok(inserted_count as usize)
+}
+
+/// 查询文章列表（支持分页和筛选）
+pub fn db_query_articles(app: &AppHandle, filter: &ArticleFilter) -> AppResult<Vec<Article>> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let mut query = String::from(
+        "SELECT id, feed_id, title, link, content, description, author, published_at, is_read, is_starred, created_at
+         FROM articles WHERE 1=1",
+    );
+    let mut params = Vec::new();
+
+    if let Some(feed_id) = filter.feed_id {
+        query.push_str(" AND feed_id = ?");
+        params.push(feed_id.to_string());
+    }
+
+    if filter.unread_only {
+        query.push_str(" AND is_read = 0");
+    }
+
+    if filter.starred_only {
+        query.push_str(" AND is_starred = 1");
+    }
+
+    query.push_str(" ORDER BY published_at DESC, created_at DESC");
+
+    if let Some(limit) = filter.limit {
+        query.push_str(&format!(" LIMIT {}", limit));
+        if let Some(offset) = filter.offset {
+            query.push_str(&format!(" OFFSET {}", offset));
+        }
+    }
+
+    let mut stmt = conn.prepare(&query)?;
+    let mut articles = Vec::new();
+
+    let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p as &dyn rusqlite::ToSql).collect();
+
+    let article_iter = stmt.query_map(param_refs.as_slice(), |row| {
+        Ok(Article {
+            id: row.get(0)?,
+            feed_id: row.get(1)?,
+            title: row.get(2)?,
+            link: row.get(3)?,
+            content: row.get(4)?,
+            description: row.get(5)?,
+            author: row.get(6)?,
+            published_at: row
+                .get::<_, Option<String>>(7)?
+                .map(|s| s.parse().unwrap()),
+            is_read: row.get(8)?,
+            is_starred: row.get(9)?,
+            created_at: row.get::<_, String>(10)?.parse().unwrap(),
+        })
+    })?;
+
+    for article in article_iter {
+        articles.push(article?);
+    }
+
+    Ok(articles)
+}
+
+/// 更新文章状态（已读/收藏）
+pub fn db_update_article(
+    app: &AppHandle,
+    article_id: i64,
+    is_read: Option<bool>,
+    is_starred: Option<bool>,
+) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let mut updates = Vec::new();
+    let mut params = Vec::new();
+
+    if let Some(read) = is_read {
+        updates.push("is_read = ?");
+        params.push(if read { "1" } else { "0" }.to_string());
+    }
+
+    if let Some(starred) = is_starred {
+        updates.push("is_starred = ?");
+        params.push(if starred { "1" } else { "0" }.to_string());
+    }
+
+    if updates.is_empty() {
+        return Ok(());
+    }
+
+    let query = format!("UPDATE articles SET {} WHERE id = ?", updates.join(", "));
+    params.push(article_id.to_string());
+
+    let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p as &dyn rusqlite::ToSql).collect();
+
+    conn.execute(&query, param_refs.as_slice())?;
+    Ok(())
+}
+
+/// 删除 Feed（级联删除相关文章）
+pub fn db_delete_feed(app: &AppHandle, feed_id: i64) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    conn.execute("DELETE FROM feeds WHERE id = ?", params![feed_id])?;
+    tracing::info!("Deleted feed with id: {}", feed_id);
+    Ok(())
+}
+
+/// 获取所有 Feeds
+pub fn db_get_all_feeds(app: &AppHandle) -> AppResult<Vec<Feed>> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let mut stmt = conn.prepare(
+        "SELECT id, url, title, description, icon_url, category, created_at, updated_at, last_fetched_at
+         FROM feeds ORDER BY title",
+    )?;
+
+    let mut feeds = Vec::new();
+
+    let feed_iter = stmt.query_map([], |row| {
+        Ok(Feed {
+            id: row.get(0)?,
+            url: row.get(1)?,
+            title: row.get(2)?,
+            description: row.get(3)?,
+            icon_url: row.get(4)?,
+            category: row.get(5)?,
+            created_at: row.get::<_, String>(6)?.parse().unwrap(),
+            updated_at: row.get::<_, String>(7)?.parse().unwrap(),
+            last_fetched_at: row
+                .get::<_, Option<String>>(8)?
+                .map(|s| s.parse().unwrap()),
+        })
+    })?;
+
+    for feed in feed_iter {
+        feeds.push(feed?);
+    }
+
+    Ok(feeds)
+}
+
+/// 更新 Feed 的最后拉取时间
+pub fn db_update_feed_last_fetched(app: &AppHandle, feed_id: i64) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let now = Utc::now().to_rfc3339();
+    conn.execute(
+        "UPDATE feeds SET last_fetched_at = ?1, updated_at = ?1 WHERE id = ?2",
+        params![now, feed_id],
+    )?;
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // 注意：这些测试需要临时数据库路径
+    // 在实际项目中，应该使用内存数据库或临时文件进行测试
+}

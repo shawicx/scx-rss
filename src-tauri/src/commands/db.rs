@@ -1,0 +1,45 @@
+use crate::core::database;
+use crate::core::models::{Article, ArticleFilter, Feed};
+use tauri::AppHandle;
+
+/// 初始化数据库
+#[tauri::command]
+pub async fn init_db(app: AppHandle) -> Result<String, String> {
+    database::db_init(&app).map_err(|e| e.to_string())?;
+    Ok("Database initialized successfully".to_string())
+}
+
+/// 获取所有 Feeds
+#[tauri::command]
+pub async fn get_all_feeds(app: AppHandle) -> Result<Vec<Feed>, String> {
+    database::db_get_all_feeds(&app).map_err(|e| e.to_string())
+}
+
+/// 查询文章列表（支持分页和筛选）
+#[tauri::command]
+pub async fn get_articles(
+    app: AppHandle,
+    filter: ArticleFilter,
+) -> Result<Vec<Article>, String> {
+    database::db_query_articles(&app, &filter).map_err(|e| e.to_string())
+}
+
+/// 更新文章状态
+#[tauri::command]
+pub async fn update_article(
+    app: AppHandle,
+    article_id: i64,
+    is_read: Option<bool>,
+    is_starred: Option<bool>,
+) -> Result<String, String> {
+    database::db_update_article(&app, article_id, is_read, is_starred)
+        .map_err(|e| e.to_string())?;
+    Ok("Article updated successfully".to_string())
+}
+
+/// 删除 Feed
+#[tauri::command]
+pub async fn delete_feed(app: AppHandle, feed_id: i64) -> Result<String, String> {
+    database::db_delete_feed(&app, feed_id).map_err(|e| e.to_string())?;
+    Ok("Feed deleted successfully".to_string())
+}
