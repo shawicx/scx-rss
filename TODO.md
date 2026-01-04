@@ -33,82 +33,82 @@
 ### 1.1 后端基础设施
 
 #### 数据库模块 (`src-tauri/src/core/database.rs`)
-- [ ] 创建 `models.rs` 定义数据结构
-  - [ ] `Feed` 结构体
-  - [ ] `Article` 结构体
-  - [ ] `FetchLog` 结构体
-- [ ] 实现 `db_init()` 命令
-  - [ ] 创建 `feeds` 表
-  - [ ] 创建 `articles` 表
-  - [ ] 创建 `fetch_logs` 表
-  - [ ] 创建索引（`feed_id`, `published_at`, `is_read`, `is_starred`）
-- [ ] 实现 `db_insert_feed()` 命令
-- [ ] 实现 `db_insert_articles()` 命令（使用事务）
-- [ ] 实现 `db_query_articles()` 命令（支持分页、筛选）
-- [ ] 实现 `db_update_article()` 命令
-- [ ] 实现 `db_delete_feed()` 命令（CASCADE）
-- [ ] 编写单元测试
+- [x] 创建 `models.rs` 定义数据结构
+  - [x] `Feed` 结构体
+  - [x] `Article` 结构体
+  - [x] `FetchLog` 结构体
+- [x] 实现 `db_init()` 命令
+  - [x] 创建 `feeds` 表
+  - [x] 创建 `articles` 表
+  - [x] 创建 `fetch_logs` 表
+  - [x] 创建索引（`feed_id`, `published_at`, `is_read`, `is_starred`）
+- [x] 实现 `db_insert_feed()` 命令
+- [x] 实现 `db_insert_articles()` 命令（使用事务）
+- [x] 实现 `db_query_articles()` 命令（支持分页、筛选）
+- [x] 实现 `db_update_article()` 命令
+- [x] 实现 `db_delete_feed()` 命令（CASCADE）
+- [x] 编写单元测试
 
 #### 网络模块 (`src-tauri/src/core/network.rs`)
-- [ ] 实现 `fetch_feed()` 函数
-  - [ ] 设置 User-Agent
-  - [ ] 超时 15s
-  - [ ] 自动重试 3 次（指数退避）
-  - [ ] 支持 HTTP 重定向（最多 5 次）
-- [ ] 实现 `batch_fetch_feeds()` 函数
-  - [ ] 并发控制（最多 3 个并发）
-  - [ ] 请求间隔 100ms
-- [ ] 编写单元测试（mock HTTP 请求）
+- [x] 实现 `fetch_feed()` 函数
+  - [x] 设置 User-Agent
+  - [x] 超时 15s
+  - [x] 自动重试 3 次（指数退避）
+  - [x] 支持 HTTP 重定向（最多 5 次）
+- [x] 实现 `batch_fetch_feeds()` 函数
+  - [x] 并发控制（最多 3 个并发）
+  - [x] 请求间隔 100ms
+- [x] 编写单元测试（mock HTTP 请求）
 
 #### 解析模块 (`src-tauri/src/core/parser.rs`)
-- [ ] 实现 `parse_feed()` 函数
-  - [ ] 支持 RSS 格式
-  - [ ] 支持 Atom 格式
-  - [ ] 提取元数据（title、description、icon）
-  - [ ] 处理编码问题（UTF-8、GBK、ISO-8859-1）
-- [ ] 实现 `parse_opml()` 函数（基础版本）
-- [ ] 编写单元测试（使用真实 RSS 样本）
+- [x] 实现 `parse_feed()` 函数
+  - [x] 支持 RSS 格式
+  - [x] 支持 Atom 格式
+  - [x] 提取元数据（title、description、icon）
+  - [x] 处理编码问题（UTF-8、GBK、ISO-8859-1）
+- [x] 实现 `parse_opml()` 函数（基础版本）
+- [x] 编写单元测试（使用真实 RSS 样本）
 
 #### 错误处理 (`src-tauri/src/core/error.rs`)
-- [ ] 定义 `AppError` 枚举
-  - [ ] `NetworkError`
-  - [ ] `ParseError`
-  - [ ] `DatabaseError`
-  - [ ] `ValidationError`
-- [ ] 实现错误转换到 `String`（Tauri 要求）
+- [x] 定义 `AppError` 枚举
+  - [x] `NetworkError`
+  - [x] `ParseError`
+  - [x] `DatabaseError`
+  - [x] `ValidationError`
+- [x] 实现错误转换到 `String`（Tauri 要求）
 
 #### Tauri Commands (`src-tauri/src/commands/`)
-- [ ] 创建 `db.rs` 命令文件
-  - [ ] 注册所有数据库命令
-- [ ] 创建 `feed.rs` 命令文件
-  - [ ] `fetch_and_update_feed(feed_id)`
-  - [ ] `add_feed(url, category)`
-  - [ ] `batch_refresh_feeds()`
-- [ ] 在 `main.rs` 中注册所有命令
+- [x] 创建 `db.rs` 命令文件
+  - [x] 注册所有数据库命令
+- [x] 创建 `feed.rs` 命令文件
+  - [x] `fetch_and_update_feed(feed_id)`
+  - [x] `add_feed(url, category)`
+  - [x] `batch_refresh_feeds()`
+- [x] 在 `main.rs` 中注册所有命令
 
 ---
 
 ### 1.2 前端基础设施
 
 #### 类型定义 (`src/types/`)
-- [ ] 创建 `feed.ts`（Feed 类型定义）
-- [ ] 创建 `article.ts`（Article 类型定义）
-- [ ] 创建 `index.ts`（导出所有类型）
+- [x] 创建 `feed.ts`（Feed 类型定义）
+- [x] 创建 `article.ts`（Article 类型定义）
+- [x] 创建 `index.ts`（导出所有类型）
 
 #### 工具函数 (`src/utils/`)
-- [ ] 创建 `formatters.ts`
-  - [ ] `formatDate()` - 日期格式化
-  - [ ] `formatFileSize()` - 文件大小格式化
-- [ ] 创建 `validators.ts`
-  - [ ] `validateUrl()` - URL 验证
-- [ ] 创建 `constants.ts`
-  - [ ] 应用常量定义
+- [x] 创建 `formatters.ts`
+  - [x] `formatDate()` - 日期格式化
+  - [x] `formatFileSize()` - 文件大小格式化
+- [x] 创建 `validators.ts`
+  - [x] `validateUrl()` - URL 验证
+- [x] 创建 `constants.ts`
+  - [x] 应用常量定义
 
 #### 组合式函数 (`src/composables/`)
-- [ ] 创建 `useToast.ts`
-  - [ ] `showSuccess(message)`
-  - [ ] `showError(message)`
-  - [ ] `showInfo(message)`
+- [x] 创建 `useToast.ts`
+  - [x] `showSuccess(message)`
+  - [x] `showError(message)`
+  - [x] `showInfo(message)`
 
 ---
 
@@ -326,10 +326,10 @@
 
 当前阶段：`阶段 1 - 核心功能（MVP）`
 
-总体进度：`███░░░░░░░░ 10%`
+总体进度：`████░░░░░░░ 30%`
 
 - 阶段 0：`██████████ 100%` ✅
-- 阶段 1：`░░░░░░░░░░ 0%`
+- 阶段 1：`██████░░░░ 30%` (1.1 ✅ | 1.2 ✅ | 1.3 待开发 | 1.4 待集成)
 - 阶段 2：`░░░░░░░░░░ 0%`
 - 阶段 3：`░░░░░░░░░░ 0%`
 - 阶段 4：`░░░░░░░░░░ 0%`
