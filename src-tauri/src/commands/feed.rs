@@ -2,7 +2,13 @@ use crate::core::database;
 use crate::core::models::{Feed, NewFeed, NewArticle};
 use crate::core::network;
 use crate::core::parser;
-use tauri::AppHandle;
+use tauri::{AppHandle, Emitter};
+use tokio_util::sync::CancellationToken;
+use std::sync::Mutex;
+use once_cell::sync::Lazy;
+
+// 全局取消令牌
+static CANCEL_TOKEN: Lazy<Mutex<Option<CancellationToken>>> = Lazy::new(|| Mutex::new(None));
 
 /// 添加新的 Feed
 #[tauri::command]
@@ -104,33 +110,51 @@ pub async fn batch_refresh_feeds(app: AppHandle) -> Result<String, String> {
         return Ok("No feeds to refresh".to_string());
     }
 
-    tracing::info!("Starting batch refresh for {} feeds", feeds.len());
+    let total = feeds.len();
+    tracing::info!("Starting batch refresh for {} feeds", total);
 
-    // 2. 批量获取 Feed 内容
-    let urls: Vec<String> = feeds.iter().map(|f| f.url.clone()).collect();
-    let results = network::batch_fetch_feeds(urls).await;
+    // 2. 创建并存储取消令牌
+    let token = CancellationToken::new();
+    *CANCEL_TOKEN.lock().unwrap() = Some(token.clone());
+
+    // 3. 发送开始事件
+    let _ = app.emit("refresh-progress", serde_json::json!({
+        "type": "start",
+        "total": total,
+    }));
 
     let mut success_count = 0;
     let mut failure_count = 0;
     let mut total_new_articles = 0;
 
-    // 3. 处理每个 Feed
-    for (url, result) in results {
-        // 找到对应的 Feed ID
-        let feed = match feeds.iter().find(|f| f.url == url) {
-            Some(f) => f,
-            None => {
-                tracing::warn!("Feed not found for URL: {}", url);
-                continue;
-            }
-        };
+    // 4. 逐个刷新 Feeds（为了进度报告）
+    for (index, feed) in feeds.iter().enumerate() {
+        // 检查是否被取消
+        if token.is_cancelled() {
+            tracing::info!("Batch refresh cancelled at {}/{}", index + 1, total);
 
-        match result {
+            let _ = app.emit("refresh-progress", serde_json::json!({
+                "type": "cancelled",
+                "current": index + 1,
+                "total": total,
+            }));
+
+            return Ok("Batch refresh cancelled".to_string());
+        }
+
+        // 发送当前进度
+        let _ = app.emit("refresh-progress", serde_json::json!({
+            "type": "progress",
+            "current": index + 1,
+            "total": total,
+            "feed_title": feed.title.clone(),
+        }));
+
+        // 拉取并处理 Feed
+        match network::fetch_feed(&feed.url).await {
             Ok(content) => {
-                // 解析 Feed
-                match parser::parse_feed(&url, &content) {
+                match parser::parse_feed(&feed.url, &content) {
                     Ok((_parsed_feed, articles)) => {
-                        // 插入文章
                         let articles: Vec<NewArticle> = articles
                             .into_iter()
                             .map(|mut a| {
@@ -143,37 +167,92 @@ pub async fn batch_refresh_feeds(app: AppHandle) -> Result<String, String> {
                             Ok(count) => {
                                 total_new_articles += count;
                                 success_count += 1;
+                                let _ = database::db_update_feed_last_fetched(&app, feed.id);
 
-                                // 更新最后拉取时间
-                                let _ =
-                                    database::db_update_feed_last_fetched(&app, feed.id);
+                                // 发送成功事件
+                                let _ = app.emit("refresh-progress", serde_json::json!({
+                                    "type": "feed-success",
+                                    "current": index + 1,
+                                    "total": total,
+                                    "feed_title": feed.title.clone(),
+                                    "new_articles": count,
+                                }));
                             }
                             Err(e) => {
                                 tracing::error!("Failed to insert articles for feed {}: {}", feed.id, e);
                                 failure_count += 1;
+
+                                // 发送失败事件
+                                let _ = app.emit("refresh-progress", serde_json::json!({
+                                    "type": "feed-error",
+                                    "current": index + 1,
+                                    "total": total,
+                                    "feed_title": feed.title.clone(),
+                                    "error": e.to_string(),
+                                }));
                             }
                         }
                     }
                     Err(e) => {
                         tracing::error!("Failed to parse feed {}: {}", feed.id, e);
                         failure_count += 1;
+
+                        let _ = app.emit("refresh-progress", serde_json::json!({
+                            "type": "feed-error",
+                            "current": index + 1,
+                            "total": total,
+                            "feed_title": feed.title.clone(),
+                            "error": e.to_string(),
+                        }));
                     }
                 }
             }
             Err(e) => {
                 tracing::error!("Failed to fetch feed {}: {}", feed.id, e);
                 failure_count += 1;
+
+                let _ = app.emit("refresh-progress", serde_json::json!({
+                    "type": "feed-error",
+                    "current": index + 1,
+                    "total": total,
+                    "feed_title": feed.title.clone(),
+                    "error": e.to_string(),
+                }));
             }
         }
     }
 
+    // 5. 清除取消令牌
+    *CANCEL_TOKEN.lock().unwrap() = None;
+
+    // 6. 发送完成事件
     let message = format!(
         "Batch refresh completed. Success: {}, Failed: {}, New articles: {}",
         success_count, failure_count, total_new_articles
     );
 
+    let _ = app.emit("refresh-progress", serde_json::json!({
+        "type": "complete",
+        "success": success_count,
+        "failed": failure_count,
+        "total_new_articles": total_new_articles,
+    }));
+
     tracing::info!("{}", message);
     Ok(message)
+}
+
+/// 取消批量刷新
+#[tauri::command]
+pub async fn cancel_batch_refresh() -> Result<bool, String> {
+    // 尝试获取并取消当前刷新
+    let mut token_guard = CANCEL_TOKEN.lock().unwrap();
+    if let Some(token) = token_guard.take() {
+        token.cancel();
+        Ok(true)
+    } else {
+        Err("No active refresh to cancel".to_string())
+    }
 }
 
 /// 导出 OPML

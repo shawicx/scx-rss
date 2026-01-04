@@ -125,6 +125,7 @@ export function useFeeds() {
     feeds,
     loading,
     listFeeds,
+    refresh: listFeeds, // 别名，用于刷新 Feed 列表
     addFeed,
     deleteFeed,
     refreshFeed,

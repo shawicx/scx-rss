@@ -115,38 +115,38 @@
 ### 1.3 核心组件
 
 #### 布局组件
-- [ ] 创建 `App.vue`
-  - [ ] 侧边栏布局
-  - [ ] 主内容区域
-  - [ ] 响应式设计
-- [ ] 创建 `Sidebar.vue`
-  - [ ] Feed 列表容器
-  - [ ] 设置入口
+- [x] 创建 `App.vue`
+  - [x] 侧边栏布局
+  - [x] 主内容区域
+  - [x] 响应式设计
+- [x] 创建 `Sidebar.vue`
+  - [x] Feed 列表容器
+  - [x] 设置入口
 
 #### Feed 管理
-- [ ] 创建 `FeedList.vue`
-  - [ ] 显示 Feed 列表
-  - [ ] 添加 Feed 按钮
-  - [ ] 删除 Feed 功能
-  - [ ] 刷新 Feed 按钮
-- [ ] 创建 `useFeeds.ts`
-  - [ ] `addFeed(url, category)`
-  - [ ] `deleteFeed(id)`
-  - [ ] `refreshFeed(id)`
-  - [ ] `listFeeds()`
+- [x] 创建 `FeedList.vue`
+  - [x] 显示 Feed 列表
+  - [x] 添加 Feed 按钮
+  - [x] 删除 Feed 功能
+  - [x] 刷新 Feed 按钮
+- [x] 创建 `useFeeds.ts`
+  - [x] `addFeed(url, category)`
+  - [x] `deleteFeed(id)`
+  - [x] `refreshFeed(id)`
+  - [x] `listFeeds()`
 
 #### 文章展示
-- [ ] 创建 `ArticleList.vue`
-  - [ ] 显示文章列表
-  - [ ] 基础样式（标题、时间、摘要）
-- [ ] 创建 `ArticleView.vue`
-  - [ ] 渲染文章内容
-  - [ ] 显示元数据
-  - [ ] 标记已读按钮
-- [ ] 创建 `useArticles.ts`
-  - [ ] `listArticles(feedId)`
-  - [ ] `markAsRead(id)`
-  - [ ] `toggleStar(id)`
+- [x] 创建 `ArticleList.vue`
+  - [x] 显示文章列表
+  - [x] 基础样式（标题、时间、摘要）
+- [x] 创建 `ArticleView.vue`
+  - [x] 渲染文章内容
+  - [x] 显示元数据
+  - [x] 标记已读按钮
+- [x] 创建 `useArticles.ts`
+  - [x] `listArticles(feedId)`
+  - [x] `markAsRead(id)`
+  - [x] `toggleStar(id)`
 
 ---
 
@@ -165,12 +165,12 @@
 ## 🎨 阶段 2：用户体验优化
 
 ### 2.1 批量刷新
-- [ ] 创建 `RefreshProgress.vue` 组件
-  - [ ] 进度条显示
-  - [ ] 当前刷新的 Feed
-  - [ ] 成功/失败统计
-- [ ] 实现 Tauri Events 推送进度
-- [ ] 添加取消刷新功能
+- [x] 创建 `RefreshProgress.vue` 组件
+  - [x] 进度条显示
+  - [x] 当前刷新的 Feed
+  - [x] 成功/失败统计
+- [x] 实现 Tauri Events 推送进度
+- [x] 添加取消刷新功能
 
 ### 2.2 筛选与排序
 - [ ] 在 `ArticleList.vue` 添加筛选
@@ -324,12 +324,12 @@
 
 ## 📊 进度跟踪
 
-当前阶段：`阶段 1 - 核心功能（MVP）`
+当前阶段：`阶段 2 - 用户体验优化`
 
-总体进度：`████░░░░░░░ 30%`
+总体进度：`██████░░░░ 40%`
 
 - 阶段 0：`██████████ 100%` ✅
-- 阶段 1：`██████░░░░ 30%` (1.1 ✅ | 1.2 ✅ | 1.3 待开发 | 1.4 待集成)
-- 阶段 2：`░░░░░░░░░░ 0%`
+- 阶段 1：`██████████ 100%` (1.1 ✅ | 1.2 ✅ | 1.3 ✅ | 1.4 待集成)
+- 阶段 2：`████░░░░░░ 25%` (2.1 ✅ | 2.2 待开发 | 2.3 待开发 | 2.4 待开发)
 - 阶段 3：`░░░░░░░░░░ 0%`
 - 阶段 4：`░░░░░░░░░░ 0%`

@@ -36,6 +36,7 @@ fn main() {
             feed::add_feed,
             feed::fetch_and_update_feed,
             feed::batch_refresh_feeds,
+            feed::cancel_batch_refresh,
             feed::export_opml,
             feed::import_opml,
         ])
