@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import FeedList from './FeedList.vue'
 import RefreshProgress from './RefreshProgress.vue'
+import Settings from './Settings.vue'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
 import { invoke } from '@tauri-apps/api/core'
@@ -20,6 +21,9 @@ const { showSuccess, showError } = useToast()
 // 批量刷新状态
 const showRefreshProgress = ref(false)
 const isRefreshing = ref(false)
+
+// 设置对话框状态
+const showSettings = ref(false)
 
 // 组件挂载时初始化 Feeds
 onMounted(async () => {
@@ -62,6 +66,16 @@ const onRefreshComplete = (success: number, failed: number, newArticles: number)
 const closeRefreshProgress = () => {
   showRefreshProgress.value = false
   isRefreshing.value = false
+}
+
+// 打开设置对话框
+const openSettings = () => {
+  showSettings.value = true
+}
+
+// 关闭设置对话框
+const closeSettings = () => {
+  showSettings.value = false
 }
 </script>
 
@@ -122,6 +136,7 @@ const closeRefreshProgress = () => {
     <!-- 侧边栏底部：设置入口 -->
     <div class="p-4 border-t border-gray-200">
       <button
+        @click="openSettings"
         class="w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded transition-colors"
       >
         ⚙️ 设置
@@ -134,6 +149,9 @@ const closeRefreshProgress = () => {
       @complete="onRefreshComplete"
       @close="closeRefreshProgress"
     />
+
+    <!-- 设置对话框 -->
+    <Settings :show="showSettings" @close="closeSettings" />
   </div>
 </template>
 
