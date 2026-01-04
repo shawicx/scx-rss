@@ -4,3 +4,4 @@
 
 export * from './feed'
 export * from './article'
+export * from './category'

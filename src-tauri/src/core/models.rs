@@ -116,6 +116,17 @@ pub struct ArticleFilter {
     pub limit: Option<i64>,
 }
 
+/// Feed 分类信息
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Category {
+    /// 分类名称
+    pub name: String,
+    /// 该分类下的未读文章数
+    pub unread_count: i64,
+    /// 该分类下的 Feed 数量
+    pub feed_count: i64,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

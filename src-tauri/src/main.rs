@@ -34,6 +34,7 @@ fn main() {
             db::get_articles,
             db::update_article,
             db::delete_feed,
+            db::get_categories,
             // Feed 命令
             feed::add_feed,
             feed::fetch_and_update_feed,

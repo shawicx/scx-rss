@@ -1,5 +1,5 @@
 use crate::core::error::AppResult;
-use crate::core::models::{Article, ArticleFilter, Feed, NewArticle, NewFeed};
+use crate::core::models::{Article, ArticleFilter, Category, Feed, NewArticle, NewFeed};
 use chrono::Utc;
 use rusqlite::{Connection, params};
 use std::path::PathBuf;
@@ -345,6 +345,40 @@ pub fn db_update_feed_last_fetched(app: &AppHandle, feed_id: i64) -> AppResult<(
     )?;
 
     Ok(())
+}
+
+/// 获取所有分类及其未读计数
+pub fn db_get_categories(app: &AppHandle) -> AppResult<Vec<Category>> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    // 查询所有分类、每个分类的 Feed 数量和未读文章数
+    let mut stmt = conn.prepare(
+        "SELECT
+            COALESCE(f.category, '未分类') as category_name,
+            COUNT(DISTINCT f.id) as feed_count,
+            COUNT(DISTINCT CASE WHEN a.is_read = 0 THEN a.id END) as unread_count
+        FROM feeds f
+        LEFT JOIN articles a ON f.id = a.feed_id
+        GROUP BY COALESCE(f.category, '未分类')
+        ORDER BY category_name",
+    )?;
+
+    let mut categories = Vec::new();
+
+    let category_iter = stmt.query_map([], |row| {
+        Ok(Category {
+            name: row.get(0)?,
+            feed_count: row.get(1)?,
+            unread_count: row.get(2)?,
+        })
+    })?;
+
+    for category in category_iter {
+        categories.push(category?);
+    }
+
+    Ok(categories)
 }
 
 #[cfg(test)]

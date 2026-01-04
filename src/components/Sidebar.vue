@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import CategoryList from './CategoryList.vue'
 import FeedList from './FeedList.vue'
 import RefreshProgress from './RefreshProgress.vue'
 import Settings from './Settings.vue'
 import { useFeeds } from '@/composables/useFeeds'
+import { useCategories } from '@/composables/useCategories'
 import { useToast } from '@/composables/useToast'
 import { invoke } from '@tauri-apps/api/core'
 
 /**
  * 侧边栏组件
- * 包含 Feed 列表和设置入口
+ * 包含分类列表（含 Feed）和设置入口
  */
 const emit = defineEmits<{
   (e: 'feed-selected', feedId: number): void
 }>()
 
-const { feeds, loading, init, refresh } = useFeeds()
+const { feeds, loading, init, refresh, deleteFeed, refreshFeed } = useFeeds()
+const { categories, init: initCategories, refresh: refreshCategories } = useCategories()
 const { showSuccess, showError } = useToast()
 
 // 批量刷新状态
@@ -25,9 +28,13 @@ const isRefreshing = ref(false)
 // 设置对话框状态
 const showSettings = ref(false)
 
-// 组件挂载时初始化 Feeds
+// 当前选中的 Feed ID
+const selectedFeedId = ref<number | undefined>(undefined)
+
+// 组件挂载时初始化
 onMounted(async () => {
   await init()
+  await initCategories()
 })
 
 // 开始批量刷新
@@ -52,8 +59,9 @@ const onRefreshComplete = (success: number, failed: number, newArticles: number)
   isRefreshing.value = false
   showRefreshProgress.value = false
 
-  // 刷新 Feed 列表
+  // 刷新 Feed 列表和分类列表
   refresh()
+  refreshCategories()
 
   if (failed === 0) {
     showSuccess(`刷新完成！成功 ${success} 个，新增 ${newArticles} 篇文章`)
@@ -76,6 +84,25 @@ const openSettings = () => {
 // 关闭设置对话框
 const closeSettings = () => {
   showSettings.value = false
+}
+
+// 处理 Feed 选择
+const handleFeedSelected = (feedId: number) => {
+  selectedFeedId.value = feedId
+  emit('feed-selected', feedId)
+}
+
+// 处理 Feed 删除
+const handleFeedDelete = async (feedId: number) => {
+  const success = await deleteFeed(feedId)
+  if (success && selectedFeedId.value === feedId) {
+    selectedFeedId.value = undefined
+  }
+}
+
+// 处理 Feed 刷新
+const handleFeedRefresh = async (feedId: number) => {
+  await refreshFeed(feedId)
 }
 </script>
 
@@ -128,9 +155,18 @@ const closeSettings = () => {
       </button>
     </div>
 
-    <!-- Feed 列表容器 -->
+    <!-- 分类和 Feed 列表容器 -->
     <div class="flex-1 overflow-y-auto">
-      <FeedList :feeds="feeds" :loading="loading" @feed-selected="emit('feed-selected', $event)" />
+      <!-- 分类列表（包含 Feed） -->
+      <CategoryList
+        :categories="categories"
+        :feeds="feeds"
+        :loading="loading"
+        :selected-feed-id="selectedFeedId"
+        @feed-selected="handleFeedSelected"
+        @feed-delete="handleFeedDelete"
+        @feed-refresh="handleFeedRefresh"
+      />
     </div>
 
     <!-- 侧边栏底部：设置入口 -->

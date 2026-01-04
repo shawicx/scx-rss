@@ -1,5 +1,5 @@
 use crate::core::database;
-use crate::core::models::{Article, ArticleFilter, Feed};
+use crate::core::models::{Article, ArticleFilter, Category, Feed};
 use tauri::AppHandle;
 
 /// 初始化数据库
@@ -42,4 +42,10 @@ pub async fn update_article(
 pub async fn delete_feed(app: AppHandle, feed_id: i64) -> Result<String, String> {
     database::db_delete_feed(&app, feed_id).map_err(|e| e.to_string())?;
     Ok("Feed deleted successfully".to_string())
+}
+
+/// 获取所有分类及其未读计数
+#[tauri::command]
+pub async fn get_categories(app: AppHandle) -> Result<Vec<Category>, String> {
+    database::db_get_categories(&app).map_err(|e| e.to_string())
 }
