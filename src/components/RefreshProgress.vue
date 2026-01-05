@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
+import { useToast } from '@/composables/useToast'
 
 /**
  * 刷新进度类型定义
@@ -31,6 +32,8 @@ const emit = defineEmits<{
   (e: 'complete', success: number, failed: number, newArticles: number): void
 }>()
 
+const { showError } = useToast()
+
 // 状态管理
 const current = ref(0)
 const total = ref(0)
@@ -47,6 +50,7 @@ const cancelRefresh = async () => {
     await invoke('cancel_batch_refresh')
   } catch (error) {
     console.error('Failed to cancel refresh:', error)
+    showError(`取消刷新失败: ${error}`)
     isCancelling.value = false
   }
 }

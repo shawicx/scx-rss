@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { Feed } from '@/types'
 import { useFeeds } from '@/composables/useFeeds'
+import { useToast } from '@/composables/useToast'
 import { validateFeedUrl } from '@/utils/validators'
 
 /**
@@ -25,6 +26,8 @@ const {
   refreshFeed,
   refreshAllFeeds
 } = useFeeds()
+
+const { showError } = useToast()
 
 // 添加 Feed 的对话框状态
 const showAddDialog = ref(false)
@@ -59,7 +62,7 @@ const handleAddFeed = async () => {
   // 验证 URL
   const validation = validateFeedUrl(newFeedUrl.value)
   if (!validation.valid) {
-    alert(validation.error)
+    showError(validation.error)
     return
   }
 

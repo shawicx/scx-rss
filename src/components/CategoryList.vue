@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { Category, Feed } from '@/types'
 import { useFeeds } from '@/composables/useFeeds'
+import { useToast } from '@/composables/useToast'
 import { validateFeedUrl } from '@/utils/validators'
 
 /**
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 }>()
 
 const { addFeed } = useFeeds()
+const { showError } = useToast()
 
 // 折叠状态（分类名 -> 是否折叠）
 const collapsedState = ref<Record<string, boolean>>({})
@@ -101,7 +103,7 @@ const handleAddFeed = async () => {
   // 验证 URL
   const validation = validateFeedUrl(newFeedUrl.value)
   if (!validation.valid) {
-    alert(validation.error)
+    showError(validation.error)
     return
   }
 

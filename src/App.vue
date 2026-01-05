@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core'
 import Sidebar from '@/components/Sidebar.vue'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleView from '@/components/ArticleView.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 import type { Article, Feed } from '@/types'
 import { useToast } from '@/composables/useToast'
 
@@ -73,6 +74,9 @@ const handleArticleSelected = (article: Article) => {
     <main class="flex-1 overflow-hidden">
       <ArticleView :article="currentArticle" />
     </main>
+
+    <!-- Toast 通知容器 -->
+    <ToastContainer />
   </div>
 </template>
 
