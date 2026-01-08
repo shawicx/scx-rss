@@ -70,13 +70,13 @@ const close = () => {
     <!-- 对话框 -->
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
       <!-- 标题栏 -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-800">
+      <div class="flex items-center justify-between p-6 border-b border-orange-200">
+        <h2 class="text-xl font-semibold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
           设置
         </h2>
         <button
           @click="close"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="text-gray-400 hover:text-orange-600 transition-all duration-300 hover:scale-110"
         >
           <svg
             class="w-6 h-6"
@@ -98,10 +98,10 @@ const close = () => {
       <div class="p-6">
         <!-- OPML 导入/导出 -->
         <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-700">
+          <h3 class="text-lg font-medium text-gray-800">
             OPML 导入/导出
           </h3>
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-orange-600">
             导出您的订阅源到 OPML 文件,或从 OPML 文件导入订阅源
           </p>
 
@@ -111,7 +111,7 @@ const close = () => {
             <button
               @click="handleExport"
               :disabled="isExporting"
-              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded transition-colors"
+              class="btn-sunset flex-1 px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <span v-if="!isExporting" class="flex items-center justify-center gap-2">
                 <svg
@@ -151,7 +151,7 @@ const close = () => {
             <button
               @click="handleImport"
               :disabled="isImporting"
-              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded transition-colors"
+              class="btn-sunset flex-1 px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <span v-if="!isImporting" class="flex items-center justify-center gap-2">
                 <svg
@@ -190,20 +190,20 @@ const close = () => {
         </div>
 
         <!-- 分隔线 -->
-        <div class="my-6 border-t border-gray-200"></div>
+        <div class="my-6 border-t border-orange-200"></div>
 
         <!-- 关于信息 -->
-        <div class="text-center text-sm text-gray-500">
+        <div class="text-center text-sm text-orange-600">
           <p>SCX RSS Reader</p>
           <p class="mt-1">版本 1.0.0</p>
         </div>
       </div>
 
       <!-- 底部按钮 -->
-      <div class="flex justify-end p-6 border-t border-gray-200">
+      <div class="flex justify-end p-6 border-t border-orange-200">
         <button
           @click="close"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded transition-colors"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-orange-300 hover:bg-orange-50 rounded transition-all duration-300 hover:scale-105"
         >
           关闭
         </button>

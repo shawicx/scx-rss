@@ -107,13 +107,13 @@ const handleFeedRefresh = async (feedId: number) => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-gray-100 border-r border-gray-200">
+  <div class="h-full flex flex-col bg-gradient-to-br from-orange-50 to-amber-50 border-r border-orange-200">
     <!-- 侧边栏头部 -->
-    <div class="p-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-800">
+    <div class="p-4 border-b border-orange-200">
+      <h2 class="text-lg font-semibold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
         SCX RSS Reader
       </h2>
-      <p class="text-xs text-gray-500 mt-1">
+      <p class="text-xs text-orange-600 mt-1">
         {{ feeds.length }} 个订阅源
       </p>
 
@@ -121,7 +121,7 @@ const handleFeedRefresh = async (feedId: number) => {
       <button
         @click="startBatchRefresh"
         :disabled="isRefreshing || feeds.length === 0"
-        class="mt-3 w-full px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded transition-colors flex items-center justify-center gap-2"
+        class="btn-sunset mt-3 w-full px-4 py-2 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <svg
           v-if="!isRefreshing"
@@ -170,10 +170,10 @@ const handleFeedRefresh = async (feedId: number) => {
     </div>
 
     <!-- 侧边栏底部：设置入口 -->
-    <div class="p-4 border-t border-gray-200">
+    <div class="p-4 border-t border-orange-200">
       <button
         @click="openSettings"
-        class="w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded transition-colors"
+        class="w-full px-4 py-2 text-sm text-orange-700 hover:text-orange-900 hover:bg-orange-100 rounded transition-all duration-300 hover:scale-105"
       >
         ⚙️ 设置
       </button>
@@ -192,7 +192,7 @@ const handleFeedRefresh = async (feedId: number) => {
 </template>
 
 <style scoped>
-/* 自定义滚动条样式 */
+/* 自定义滚动条样式 - 夕阳色主题 */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
@@ -202,11 +202,11 @@ const handleFeedRefresh = async (feedId: number) => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 142, 83, 0.3);
   border-radius: 3px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 142, 83, 0.5);
 }
 </style>

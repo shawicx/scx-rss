@@ -123,12 +123,12 @@ const progressPercentage = () => {
     <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
       <!-- 标题 -->
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">
+        <h3 class="text-lg font-semibold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
           批量刷新订阅源
         </h3>
         <button
           @click="emit('close')"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="text-gray-400 hover:text-orange-600 transition-all duration-300 hover:scale-110"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -138,20 +138,20 @@ const progressPercentage = () => {
 
       <!-- 进度条 -->
       <div class="mb-4">
-        <div class="flex justify-between text-sm text-gray-600 mb-2">
+        <div class="flex justify-between text-sm text-orange-600 mb-2">
           <span>进度</span>
           <span>{{ current }} / {{ total }} ({{ progressPercentage() }}%)</span>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="w-full bg-orange-200 rounded-full h-2">
           <div
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            class="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full transition-all duration-300"
             :style="{ width: progressPercentage() + '%' }"
           ></div>
         </div>
       </div>
 
       <!-- 当前刷新的 Feed -->
-      <div v-if="currentFeedTitle" class="mb-4 text-sm text-gray-600">
+      <div v-if="currentFeedTitle" class="mb-4 text-sm text-orange-600">
         <span class="font-medium">当前刷新：</span>{{ currentFeedTitle }}
       </div>
 
@@ -159,15 +159,15 @@ const progressPercentage = () => {
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div class="text-center">
           <div class="text-2xl font-semibold text-green-600">{{ successCount }}</div>
-          <div class="text-xs text-gray-500">成功</div>
+          <div class="text-xs text-orange-600">成功</div>
         </div>
         <div class="text-center">
           <div class="text-2xl font-semibold text-red-600">{{ failureCount }}</div>
-          <div class="text-xs text-gray-500">失败</div>
+          <div class="text-xs text-orange-600">失败</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-semibold text-blue-600">{{ totalNewArticles }}</div>
-          <div class="text-xs text-gray-500">新文章</div>
+          <div class="text-2xl font-semibold text-orange-600">{{ totalNewArticles }}</div>
+          <div class="text-xs text-orange-600">新文章</div>
         </div>
       </div>
 
@@ -176,7 +176,7 @@ const progressPercentage = () => {
         <button
           @click="cancelRefresh"
           :disabled="isCancelling"
-          class="px-4 py-2 text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 text-sm text-gray-700 bg-gray-200 hover:bg-orange-100 rounded transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {{ isCancelling ? '取消中...' : '取消刷新' }}
         </button>

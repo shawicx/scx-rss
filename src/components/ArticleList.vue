@@ -108,25 +108,25 @@ const getArticleSummary = (article: Article): string => {
 <template>
   <div class="h-full flex flex-col bg-white">
     <!-- 筛选工具栏 -->
-    <div class="flex items-center gap-2 p-4 border-b border-gray-200">
+    <div class="flex items-center gap-2 p-4 border-b border-orange-200">
       <button
         @click="setFilterMode('all')"
-        class="px-3 py-1.5 text-sm rounded transition-colors"
-        :class="filterMode === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
+        :class="filterMode === 'all' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
       >
         全部
       </button>
       <button
         @click="setFilterMode('unread')"
-        class="px-3 py-1.5 text-sm rounded transition-colors"
-        :class="filterMode === 'unread' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
+        :class="filterMode === 'unread' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
       >
         未读 ({{ unreadCount }})
       </button>
       <button
         @click="setFilterMode('starred')"
-        class="px-3 py-1.5 text-sm rounded transition-colors"
-        :class="filterMode === 'starred' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
+        :class="filterMode === 'starred' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
       >
         收藏 ({{ starredCount }})
       </button>
@@ -157,20 +157,20 @@ const getArticleSummary = (article: Article): string => {
       </div>
 
       <!-- 文章列表 -->
-      <div v-else class="divide-y divide-gray-100">
+      <div v-else class="divide-y divide-orange-100">
         <article
           v-for="article in articles"
           :key="article.id"
           @click="handleSelectArticle(article)"
-          class="p-4 cursor-pointer transition-colors hover:bg-gray-50"
-          :class="{ 'bg-blue-50': selectedArticleId === article.id }"
+          class="article-card group p-4 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:shadow-md hover:translate-x-1"
+          :class="{ 'bg-gradient-to-r from-orange-100 to-amber-100': selectedArticleId === article.id }"
         >
           <div class="flex gap-3">
             <!-- 已读/未读指示器 -->
             <div class="flex-shrink-0 mt-1">
               <div
-                class="w-2 h-2 rounded-full transition-colors"
-                :class="article.is_read ? 'bg-gray-300' : 'bg-blue-500'"
+                class="w-2.5 h-2.5 rounded-full transition-all duration-300"
+                :class="article.is_read ? 'bg-gray-300' : 'bg-gradient-to-br from-orange-400 to-amber-500 shadow-sm'"
               />
             </div>
 
@@ -179,15 +179,15 @@ const getArticleSummary = (article: Article): string => {
               <!-- 标题和收藏按钮 -->
               <div class="flex items-start gap-2">
                 <h3
-                  class="flex-1 text-base font-medium text-gray-900 truncate"
-                  :class="{ 'font-normal': article.is_read }"
+                  class="flex-1 text-base font-medium text-gray-900 truncate group-hover:text-orange-700 transition-colors"
+                  :class="{ 'font-normal text-gray-600': article.is_read }"
                 >
                   {{ article.title }}
                 </h3>
                 <button
                   @click="handleToggleStar(article.id, $event)"
-                  class="flex-shrink-0 transition-colors"
-                  :class="article.is_starred ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500'"
+                  class="flex-shrink-0 transition-all duration-300 hover:scale-125"
+                  :class="article.is_starred ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'"
                   title="收藏"
                 >
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -198,8 +198,8 @@ const getArticleSummary = (article: Article): string => {
 
               <!-- 元信息 -->
               <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                <span>{{ formatDate(article.published_at || article.created_at) }}</span>
-                <span v-if="article.author">· {{ article.author }}</span>
+                <span class="text-orange-600">{{ formatDate(article.published_at || article.created_at) }}</span>
+                <span v-if="article.author" class="text-gray-400">· {{ article.author }}</span>
               </div>
 
               <!-- 摘要 -->
@@ -222,6 +222,11 @@ const getArticleSummary = (article: Article): string => {
   overflow: hidden;
 }
 
+/* 文章卡片进入动画 */
+.article-card {
+  animation: fadeInUp 0.4s ease-out;
+}
+
 /* 自定义滚动条样式 */
 .overflow-y-auto::-webkit-scrollbar {
   width: 8px;
@@ -232,11 +237,23 @@ const getArticleSummary = (article: Article): string => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 142, 83, 0.3);
   border-radius: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 142, 83, 0.5);
+}
+
+/* 淡入上升动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

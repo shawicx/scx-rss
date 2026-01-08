@@ -1,0 +1,433 @@
+/**
+ * 夕阳色主题样式系统
+ * Sunset Color Theme Design System
+ *
+ * 配色方案灵感来自日落时分的美丽色彩：
+ * - 天空从金黄到橙红的渐变
+ * - 云层的柔和粉色
+ * - 远山的深紫色调
+ */
+
+/* ============================================
+   CSS 变量定义 - 夕阳色系
+   ============================================ */
+:root {
+  /* 主色调 - 夕阳橙红 */
+  --sunset-primary: #FF6B6B;
+  --sunset-primary-light: #FF8E8E;
+  --sunset-primary-dark: #E85555;
+  --sunset-primary-glow: rgba(255, 107, 107, 0.3);
+
+  /* 辅助色 - 金黄色 */
+  --sunset-secondary: #FFD93D;
+  --sunset-secondary-light: #FFE570;
+  --sunset-secondary-dark: #FFC107;
+
+  /* 强调色 - 珊瑚粉 */
+  --sunset-accent: #FF8E53;
+  --sunset-accent-light: #FFA572;
+  --sunset-accent-dark: #E67E45;
+
+  /* 中性色背景 */
+  --sunset-bg-cream: #FFF8F0;
+  --sunset-bg-warm: #FFF5E6;
+  --sunset-bg-soft: #FAEBD7;
+
+  /* 深色调 - 远山紫 */
+  --sunset-purple: #6C5CE7;
+  --sunset-purple-light: #A29BFE;
+  --sunset-purple-dark: #5649B8;
+
+  /* 渐变定义 */
+  --gradient-sunset: linear-gradient(135deg, #FFD93D 0%, #FF8E53 50%, #FF6B6B 100%);
+  --gradient-sunset-soft: linear-gradient(135deg, #FFE5CC 0%, #FFD4B8 50%, #FFC4A3 100%);
+  --gradient-sunset-vertical: linear-gradient(180deg, #FFE5CC 0%, #FFD93D 50%, #FF8E53 100%);
+  --gradient-purple-sunset: linear-gradient(135deg, #6C5CE7 0%, #FF8E53 100%);
+  --gradient-warm-glow: radial-gradient(ellipse at top, rgba(255, 217, 61, 0.2) 0%, transparent 70%);
+
+  /* 阴影 */
+  --shadow-sunset: 0 4px 20px rgba(255, 107, 107, 0.15);
+  --shadow-sunset-lg: 0 10px 40px rgba(255, 142, 83, 0.2);
+  --shadow-warm: 0 2px 10px rgba(255, 193, 7, 0.1);
+
+  /* 过渡时长 */
+  --transition-fast: 150ms;
+  --transition-base: 300ms;
+  --transition-slow: 500ms;
+}
+
+/* ============================================
+   全局背景
+   ============================================ */
+body {
+  background: var(--sunset-bg-cream);
+  background-image:
+    var(--gradient-warm-glow),
+    linear-gradient(to bottom, transparent 0%, var(--sunset-bg-cream) 100%);
+  background-attachment: fixed;
+  transition: background var(--transition-slow) ease;
+}
+
+/* ============================================
+   CSS3 关键帧动画库
+   ============================================ */
+
+/* 夕阳渐变流动动画 */
+@keyframes sunsetGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 淡入上升动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 淡入缩放动画 */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 脉冲发光动画 */
+@keyframes sunsetGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--sunset-primary-glow);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 107, 107, 0.5);
+  }
+}
+
+/* 弹跳进入动画 */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 摇摆动画 */
+@keyframes swing {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* 旋转进入动画 */
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+/* 波纹扩散动画 */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 夕阳余晖闪烁 */
+@keyframes sunsetTwinkle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 悬浮动画 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ============================================
+   实用类 - 夕阳色组件
+   ============================================ */
+
+/* 渐变背景 */
+.bg-sunset-gradient {
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  animation: sunsetGradientFlow 8s ease infinite;
+}
+
+.bg-sunset-soft {
+  background: var(--gradient-sunset-soft);
+}
+
+.bg-sunset-vertical {
+  background: var(--gradient-sunset-vertical);
+}
+
+/* 发光效果 */
+.glow-sunset {
+  animation: sunsetGlow 2s ease-in-out infinite;
+}
+
+.glow-pulse {
+  animation: sunsetGlow 3s ease-in-out infinite;
+}
+
+/* 进入动画 */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+.animate-rotate-in {
+  animation: rotateIn 0.6s ease-out;
+}
+
+/* 持续动画 */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-swing {
+  animation: swing 1s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+/* 悬停效果增强 */
+.hover-sunset {
+  transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-sunset:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sunset);
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  animation: sunsetGradientFlow 3s ease infinite;
+}
+
+/* ============================================
+   组件样式类
+   ============================================ */
+
+/* 按钮样式 */
+.btn-sunset {
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sunset::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-sunset:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-sunset:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sunset-lg);
+  animation: none;
+}
+
+.btn-sunset:active {
+  transform: translateY(0);
+}
+
+/* 卡片样式 */
+.card-sunset {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sunset);
+  transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 107, 107, 0.1);
+}
+
+.card-sunset:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-sunset-lg);
+  border-color: var(--sunset-primary);
+}
+
+/* 输入框样式 */
+.input-sunset {
+  padding: 0.75rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  background: var(--sunset-bg-warm);
+  transition: all var(--transition-base) ease;
+  outline: none;
+  width: 100%;
+}
+
+.input-sunset:focus {
+  background: white;
+  border-color: var(--sunset-primary);
+  box-shadow: 0 0 0 4px var(--sunset-primary-glow);
+}
+
+/* 标签样式 */
+.tag-sunset {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  color: white;
+  transition: all var(--transition-base) ease;
+}
+
+.tag-sunset:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-sunset);
+}
+
+/* 进度条样式 */
+.progress-sunset {
+  height: 0.75rem;
+  background: var(--sunset-bg-soft);
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-sunset-bar {
+  height: 100%;
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  border-radius: 1rem;
+  animation: sunsetGradientFlow 2s linear infinite;
+  transition: width var(--transition-base) ease;
+}
+
+/* 分隔线 */
+.divider-sunset {
+  height: 2px;
+  background: var(--gradient-sunset);
+  background-size: 200% 200%;
+  animation: sunsetGradientFlow 4s linear infinite;
+  opacity: 0.3;
+}
+
+/* 加载动画 */
+.loading-sunset {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--sunset-bg-soft);
+  border-top-color: var(--sunset-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 徽章样式 */
+.badge-sunset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--gradient-sunset);
+  color: white;
+  animation: bounceIn 0.4s ease-out;
+}
+
+/* ============================================
+   无障碍设计
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

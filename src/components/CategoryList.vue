@@ -127,7 +127,7 @@ const handleAddFeed = async () => {
     <div class="mb-3 px-2">
       <button
         @click="openAddDialog"
-        class="w-full px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        class="btn-sunset w-full px-3 py-2 text-sm"
         :disabled="loading"
       >
         + 添加订阅源
@@ -148,14 +148,15 @@ const handleAddFeed = async () => {
         <!-- 分类头部 -->
         <div
           @click="toggleCollapse(category.name)"
-          class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-colors hover:bg-gray-200"
+          class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all duration-300 hover:bg-orange-100 hover:scale-[1.02]"
         >
           <button
-            class="flex-shrink-0 p-0.5 hover:bg-gray-300 rounded transition-colors"
+            @click.stop="toggleCollapse(category.name)"
+            class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-amber-500 text-white transition-all duration-300 hover:from-orange-500 hover:to-amber-600 hover:scale-110"
             :class="{ 'rotate-0': !isCollapsed(category.name), 'rotate-[-90deg]': isCollapsed(category.name) }"
           >
             <svg
-              class="w-4 h-4 transition-transform"
+              class="w-3 h-3 transition-transform"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -163,14 +164,14 @@ const handleAddFeed = async () => {
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
+                stroke-width="3"
                 d="M19 9l-7 7-7-7"
               />
             </svg>
           </button>
 
           <svg
-            class="w-5 h-5 flex-shrink-0"
+            class="w-5 h-5 flex-shrink-0 text-orange-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -184,17 +185,17 @@ const handleAddFeed = async () => {
           </svg>
 
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate">
+            <div class="text-sm font-medium truncate text-gray-800">
               {{ category.name }}
             </div>
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-orange-600">
               {{ category.feed_count }} 个订阅源
             </div>
           </div>
 
           <div
             v-if="category.unread_count > 0"
-            class="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full"
+            class="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full"
           >
             {{ category.unread_count }}
           </div>
@@ -206,14 +207,14 @@ const handleAddFeed = async () => {
             v-for="feed in getFeedsByCategory(category.name)"
             :key="feed.id"
             @click="handleSelectFeed(feed.id)"
-            class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-colors"
+            class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all duration-300 hover:scale-[1.01]"
             :class="[
               selectedFeedId === feed.id
-                ? 'bg-blue-100 text-blue-800'
-                : 'hover:bg-gray-200 text-gray-700'
+                ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-900 shadow-sm'
+                : 'hover:bg-orange-50 text-gray-700'
             ]"
           >
-            <div class="flex-shrink-0 w-6 h-6 rounded bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+            <div class="flex-shrink-0 w-6 h-6 rounded bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
               {{ feed.title.charAt(0).toUpperCase() }}
             </div>
 
@@ -226,14 +227,14 @@ const handleAddFeed = async () => {
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 @click.stop="handleRefreshFeed(feed.id)"
-                class="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                class="w-7 h-7 flex items-center justify-center text-orange-600 hover:bg-gradient-to-br hover:from-orange-400 hover:to-amber-500 hover:text-white rounded-full transition-all duration-300 hover:scale-110"
                 title="刷新"
               >
                 ↻
               </button>
               <button
                 @click.stop="handleDeleteFeed(feed.id, feed.title)"
-                class="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded"
+                class="w-7 h-7 flex items-center justify-center text-orange-600 hover:text-white hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500 rounded-full transition-all duration-300 hover:scale-110"
                 title="删除"
               >
                 ✕
@@ -241,7 +242,7 @@ const handleAddFeed = async () => {
             </div>
           </div>
 
-          <div v-if="getFeedsByCategory(category.name).length === 0" class="px-3 py-2 text-xs text-gray-500">
+          <div v-if="getFeedsByCategory(category.name).length === 0" class="px-3 py-2 text-xs text-orange-600">
             该分类下暂无订阅源
           </div>
         </div>
@@ -266,7 +267,7 @@ const handleAddFeed = async () => {
               v-model="newFeedUrl"
               type="url"
               placeholder="https://example.com/feed.xml"
-              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="input-sunset"
               @keypress.enter="handleAddFeed"
             >
           </div>
@@ -279,7 +280,7 @@ const handleAddFeed = async () => {
               v-model="newFeedCategory"
               type="text"
               placeholder="例如：技术、新闻"
-              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="input-sunset"
               @keypress.enter="handleAddFeed"
             >
           </div>
@@ -288,14 +289,14 @@ const handleAddFeed = async () => {
         <div class="flex gap-3 mt-6">
           <button
             @click="showAddDialog = false"
-            class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+            class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-all duration-300 hover:scale-105"
           >
             取消
           </button>
           <button
             @click="handleAddFeed"
             :disabled="adding || !newFeedUrl"
-            class="flex-1 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            class="btn-sunset flex-1 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {{ adding ? '添加中...' : '添加' }}
           </button>

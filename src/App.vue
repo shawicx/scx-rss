@@ -55,14 +55,14 @@ const handleArticleSelected = (article: Article) => {
 </script>
 
 <template>
-  <div class="h-screen flex overflow-hidden bg-gray-50">
+  <div class="h-screen w-screen flex overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50">
     <!-- 侧边栏 -->
-    <aside class="w-80 flex-shrink-0">
+    <aside class="w-80 flex-shrink-0 h-full overflow-hidden">
       <Sidebar v-if="isInitialized" @feed-selected="handleFeedSelected" />
     </aside>
 
     <!-- 文章列表 -->
-    <section class="w-96 flex-shrink-0 border-r border-gray-200">
+    <section class="w-96 flex-shrink-0 border-r border-orange-200 h-full overflow-hidden">
       <ArticleList
         v-if="isInitialized"
         :feed-id="currentFeedId"
@@ -71,7 +71,7 @@ const handleArticleSelected = (article: Article) => {
     </section>
 
     <!-- 文章阅读器 -->
-    <main class="flex-1 overflow-hidden">
+    <main class="flex-1 h-full overflow-hidden">
       <ArticleView :article="currentArticle" />
     </main>
 

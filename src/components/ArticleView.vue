@@ -80,29 +80,30 @@ const renderContent = (): string => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-white">
+  <div class="h-full flex flex-col bg-gradient-to-br from-orange-50/95 to-amber-50/95">
     <!-- 空状态 -->
     <div
       v-if="!currentArticle"
-      class="flex flex-col items-center justify-center h-full text-gray-500"
+      class="flex flex-col items-center justify-center h-full"
     >
-      <svg class="w-24 h-24 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-24 h-24 mb-4 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
       </svg>
-      <p class="text-lg">选择一篇文章开始阅读</p>
+      <p class="text-xl font-medium text-orange-700">选择一篇文章开始阅读</p>
+      <p class="text-sm text-orange-500 mt-2">从左侧选择一个订阅源查看文章列表</p>
     </div>
 
     <!-- 文章内容 -->
     <div v-else class="flex-1 overflow-y-auto">
       <!-- 工具栏 -->
-      <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-8 py-4">
+      <div class="sticky top-0 z-10 bg-gradient-to-r from-white to-orange-50/50 border-b border-orange-200 px-8 py-4 backdrop-blur-sm">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <!-- 收藏按钮 -->
             <button
               @click="handleToggleStar"
-              class="p-2 rounded transition-colors"
-              :class="currentArticle.is_starred ? 'text-yellow-500 bg-yellow-50' : 'text-gray-500 hover:bg-gray-100'"
+              class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 hover:scale-110"
+              :class="currentArticle.is_starred ? 'text-amber-500 bg-amber-50' : 'text-gray-500 hover:bg-orange-50'"
               title="收藏"
             >
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -114,7 +115,7 @@ const renderContent = (): string => {
             <button
               v-if="currentArticle.is_read"
               @click="handleMarkAsUnread"
-              class="p-2 text-gray-500 rounded hover:bg-gray-100 transition-colors"
+              class="w-10 h-10 flex items-center justify-center text-orange-600 rounded-full hover:bg-orange-50 transition-all duration-300 hover:scale-110"
               title="标记为未读"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +126,7 @@ const renderContent = (): string => {
             <!-- 打开原文按钮 -->
             <button
               @click="openInBrowser"
-              class="p-2 text-gray-500 rounded hover:bg-gray-100 transition-colors"
+              class="w-10 h-10 flex items-center justify-center text-orange-600 rounded-full hover:bg-orange-50 transition-all duration-300 hover:scale-110"
               title="在浏览器中打开"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,13 +139,13 @@ const renderContent = (): string => {
           <div class="flex items-center gap-2 text-sm">
             <span
               v-if="currentArticle.is_starred"
-              class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded"
+              class="px-2 py-1 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 rounded"
             >
               已收藏
             </span>
             <span
               v-if="currentArticle.is_read"
-              class="px-2 py-1 bg-gray-100 text-gray-600 rounded"
+              class="px-2 py-1 bg-orange-100 text-orange-600 rounded"
             >
               已读
             </span>
@@ -160,7 +161,7 @@ const renderContent = (): string => {
         </h1>
 
         <!-- 元信息 -->
-        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-8 pb-6 border-b border-gray-200">
+        <div class="flex flex-wrap items-center gap-4 text-sm text-orange-600 mb-8 pb-6 border-b border-orange-200">
           <div class="flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -183,12 +184,12 @@ const renderContent = (): string => {
         />
 
         <!-- 原文链接 -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="mt-8 pt-6 border-t border-orange-200">
           <a
             :href="currentArticle.link"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+            class="inline-flex items-center gap-2 text-orange-600 hover:text-orange-800 transition-all duration-300 hover:scale-105"
           >
             <span>阅读原文</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +203,7 @@ const renderContent = (): string => {
 </template>
 
 <style scoped>
-/* 自定义滚动条样式 */
+/* 自定义滚动条样式 - 夕阳色主题 */
 .overflow-y-auto::-webkit-scrollbar {
   width: 8px;
 }
@@ -212,12 +213,12 @@ const renderContent = (): string => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 142, 83, 0.3);
   border-radius: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 142, 83, 0.5);
 }
 
 /* 文章内容样式 */
@@ -234,30 +235,30 @@ const renderContent = (): string => {
 }
 
 .prose :deep(a) {
-  color: #2563eb;
+  color: #ea580c;
   text-decoration: underline;
 }
 
 .prose :deep(a:hover) {
-  color: #1d4ed8;
+  color: #c2410c;
 }
 
 .prose :deep(pre) {
-  background-color: #f3f4f6;
+  background-color: #fff7ed;
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
 }
 
 .prose :deep(code) {
-  background-color: #f3f4f6;
+  background-color: #fff7ed;
   padding: 0.125rem 0.25rem;
   border-radius: 4px;
   font-size: 0.875rem;
 }
 
 .prose :deep(blockquote) {
-  border-left: 4px solid #d1d5db;
+  border-left: 4px solid #fdba74;
   padding-left: 1rem;
   font-style: italic;
   color: #6b7280;
