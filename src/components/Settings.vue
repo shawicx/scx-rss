@@ -5,6 +5,7 @@ import { save, open } from '@tauri-apps/plugin-dialog'
 import { useOpml } from '@/composables/useOpml'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
+import { useTheme, type ThemeName } from '@/composables/useTheme'
 
 defineProps<{
   show: boolean
@@ -18,11 +19,18 @@ const emit = defineEmits<{
 const { exportOpml, importOpml } = useOpml()
 const { refresh } = useFeeds()
 const { showSuccess, showError, showInfo } = useToast()
+const { currentTheme, setTheme } = useTheme()
 
 const isExporting = ref(false)
 const isImporting = ref(false)
 const isBackingUp = ref(false)
 const isRestoring = ref(false)
+
+const themeOptions = [
+  { title: 'Material Light', value: 'materialLight' as ThemeName },
+  { title: 'Material Dark', value: 'materialDark' as ThemeName },
+  { title: 'Warm Ink', value: 'warmInk' as ThemeName },
+]
 
 const handleExport = async () => {
   if (isExporting.value) return
@@ -99,103 +107,114 @@ const close = () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="close">
-    <div class="modal-content">
+  <v-dialog :model-value="show" max-width="420" @click:outside="close">
+    <v-card>
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 pt-5 pb-3">
-        <h2 class="text-sm font-semibold" style="color: var(--ink-text)">设置</h2>
-        <button
-          class="close-btn w-7 h-7 flex items-center justify-center rounded-md transition-colors duration-150"
-          @click="close"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+      <v-card-title class="d-flex align-center justify-between pa-5 pb-3">
+        <span class="text-body-1 font-weight-semibold">设置</span>
+        <v-btn icon variant="text" size="small" @click="close">
+          <v-icon size="18">mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
 
-      <!-- Content -->
-      <div class="px-5 pb-3">
-        <div class="space-y-3">
-          <h3 class="text-xs font-medium" style="color: var(--ink-text-secondary)">OPML 导入 / 导出</h3>
-          <p class="text-xs leading-relaxed" style="color: var(--ink-text-tertiary)">
+      <v-card-text class="px-5 pb-3">
+        <!-- Theme Selector -->
+        <div class="mb-5">
+          <h3 class="text-caption font-weight-medium mb-2">主题</h3>
+          <v-select
+            :model-value="currentTheme"
+            :items="themeOptions"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:model-value="setTheme"
+          />
+        </div>
+
+        <!-- OPML Import/Export -->
+        <div class="mb-5">
+          <h3 class="text-caption font-weight-medium mb-2">OPML 导入 / 导出</h3>
+          <p class="text-caption text-medium-emphasis mb-3">
             将订阅源导出为 OPML 文件以备份，或从 OPML 文件导入订阅源。
           </p>
-
-          <div class="flex gap-2">
-            <button
-              :disabled="isExporting"
-              class="btn-ink flex-1 text-xs gap-1.5"
+          <div class="d-flex ga-2">
+            <v-btn
+              :loading="isExporting"
+              color="primary"
+              variant="outlined"
+              size="small"
+              class="flex-1-1"
+              prepend-icon="mdi-download"
               @click="handleExport"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              {{ isExporting ? '导出中...' : '导出' }}
-            </button>
-            <button
-              :disabled="isImporting"
-              class="btn-ink flex-1 text-xs gap-1.5"
+              导出
+            </v-btn>
+            <v-btn
+              :loading="isImporting"
+              color="primary"
+              variant="outlined"
+              size="small"
+              class="flex-1-1"
+              prepend-icon="mdi-upload"
               @click="handleImport"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              {{ isImporting ? '导入中...' : '导入' }}
-            </button>
+              导入
+            </v-btn>
           </div>
         </div>
 
         <!-- Data Backup/Restore -->
-        <div class="mt-5 space-y-3">
-          <h3 class="text-xs font-medium" style="color: var(--ink-text-secondary)">数据备份 / 恢复</h3>
-          <p class="text-xs leading-relaxed" style="color: var(--ink-text-tertiary)">
+        <div class="mb-5">
+          <h3 class="text-caption font-weight-medium mb-2">数据备份 / 恢复</h3>
+          <p class="text-caption text-medium-emphasis mb-3">
             备份完整数据库（含文章、订阅、阅读状态），或从备份文件恢复。
           </p>
-
-          <div class="flex gap-2">
-            <button
-              :disabled="isBackingUp"
-              class="btn-ink flex-1 text-xs gap-1.5"
+          <div class="d-flex ga-2">
+            <v-btn
+              :loading="isBackingUp"
+              color="primary"
+              variant="outlined"
+              size="small"
+              class="flex-1-1"
+              prepend-icon="mdi-download"
               @click="handleBackup"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              {{ isBackingUp ? '备份中...' : '备份数据' }}
-            </button>
-            <button
-              :disabled="isRestoring"
-              class="btn-ink flex-1 text-xs gap-1.5"
+              备份数据
+            </v-btn>
+            <v-btn
+              :loading="isRestoring"
+              color="primary"
+              variant="outlined"
+              size="small"
+              class="flex-1-1"
+              prepend-icon="mdi-upload"
               @click="handleRestore"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              {{ isRestoring ? '恢复中...' : '恢复数据' }}
-            </button>
+              恢复数据
+            </v-btn>
           </div>
         </div>
 
         <!-- About -->
-        <div class="mt-6 pt-4 text-center" style="border-top: 1px solid var(--ink-border-light)">
-          <p class="text-xs" style="color: var(--ink-text-tertiary)">SCX RSS Reader · v1.0.0</p>
-        </div>
-      </div>
+        <v-divider class="mb-4" />
+        <p class="text-caption text-center text-medium-emphasis">SCX RSS Reader · v1.0.0</p>
+      </v-card-text>
 
-      <!-- Footer -->
-      <div class="flex justify-end px-5 py-3" style="border-top: 1px solid var(--ink-border-light)">
-        <button class="btn-ghost text-xs" @click="close">关闭</button>
-      </div>
-    </div>
-  </div>
+      <v-divider />
+      <v-card-actions class="justify-end pa-3">
+        <v-btn variant="text" size="small" @click="close">关闭</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>
-.close-btn {
-  color: var(--ink-text-tertiary);
+.flex-1-1 {
+  flex: 1 1 0;
 }
-.close-btn:hover {
-  background: var(--ink-paper);
+.justify-between {
+  justify-content: space-between;
 }
 </style>

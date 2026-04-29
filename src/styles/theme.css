@@ -1,88 +1,15 @@
 /*
- * Warm Ink (暖墨) — Editorial Design System
+ * SCX RSS — Base Styles
  *
- * A refined, reading-focused aesthetic inspired by premium editorial apps.
- * Dark sidebar, warm paper content area, copper accent, serif headings.
+ * Minimal base styles for the app. Vuetify handles component styling.
+ * This file keeps global resets, prose content styles, and utilities.
  */
-
-/* ============================================
-   CSS Custom Properties
-   ============================================ */
-:root {
-  /* Surfaces — Dark (sidebar) */
-  --ink-dark: #1c1a1f;
-  --ink-dark-raised: #26242b;
-  --ink-dark-hover: #302e38;
-  --ink-dark-active: #3a3844;
-
-  /* Surfaces — Light (content) */
-  --ink-paper: #f6f2ec;
-  --ink-paper-bright: #faf8f4;
-  --ink-white: #ffffff;
-
-  /* Text */
-  --ink-text: #1a1a1a;
-  --ink-text-secondary: #71717a;
-  --ink-text-tertiary: #a1a1aa;
-  --ink-text-inverse: #d4d0cb;
-  --ink-text-inverse-muted: #8a8590;
-
-  /* Accent — Copper */
-  --ink-accent: #c07a4a;
-  --ink-accent-hover: #a86a3e;
-  --ink-accent-subtle: rgba(192, 122, 74, 0.08);
-  --ink-accent-light: #f5e8dc;
-  --ink-accent-border: rgba(192, 122, 74, 0.25);
-
-  /* Borders */
-  --ink-border: #e5e0d8;
-  --ink-border-light: #ede9e2;
-  --ink-border-dark: #38353f;
-
-  /* Status */
-  --ink-success: #4a7c59;
-  --ink-success-bg: #edf5ef;
-  --ink-error: #b84040;
-  --ink-error-bg: #fdf2f2;
-  --ink-warning: #a67c2e;
-  --ink-warning-bg: #fdf8ed;
-
-  /* Shadows */
-  --ink-shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --ink-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  --ink-shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --ink-shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-
-  /* Transitions */
-  --ink-fast: 120ms ease;
-  --ink-base: 200ms ease;
-  --ink-slow: 350ms ease;
-
-  /* Typography */
-  --ink-serif: "Georgia", "Noto Serif SC", "Songti SC", "STSong", serif;
-  --ink-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-
-  /* Spacing */
-  --ink-sidebar-w: 272px;
-  --ink-list-w: 360px;
-}
 
 /* ============================================
    Global Reset & Base
    ============================================ */
 *, *::before, *::after {
   box-sizing: border-box;
-}
-
-button {
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  outline: none;
 }
 
 html {
@@ -93,14 +20,11 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--ink-sans);
-  color: var(--ink-text);
-  background: var(--ink-paper);
   line-height: 1.5;
 }
 
 ::selection {
-  background: var(--ink-accent);
+  background: rgb(var(--v-theme-primary));
   color: white;
 }
 
@@ -124,188 +48,6 @@ body {
   background: rgba(0,0,0,0.22);
 }
 
-/* Dark sidebar scrollbar */
-.ink-dark-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.08);
-}
-
-.ink-dark-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.16);
-}
-
-/* ============================================
-   Component Classes
-   ============================================ */
-
-/* Button — Primary */
-.btn-ink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  font-family: var(--ink-sans);
-  color: #fff;
-  background: var(--ink-accent);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--ink-fast);
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.btn-ink:hover {
-  background: var(--ink-accent-hover);
-}
-
-.btn-ink:active {
-  transform: scale(0.98);
-}
-
-.btn-ink:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.btn-ink:disabled:hover {
-  transform: none;
-}
-
-/* Button — Ghost (light) */
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  font-family: var(--ink-sans);
-  color: var(--ink-text-secondary);
-  background: transparent;
-  border: 1px solid var(--ink-border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--ink-fast);
-  line-height: 1.4;
-}
-
-.btn-ghost:hover {
-  color: var(--ink-text);
-  border-color: var(--ink-text-tertiary);
-  background: var(--ink-paper-bright);
-}
-
-/* Button — Ghost (dark) */
-.btn-ghost-dark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  font-family: var(--ink-sans);
-  color: var(--ink-text-inverse-muted);
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--ink-fast);
-  line-height: 1.4;
-  width: 100%;
-}
-
-.btn-ghost-dark:hover {
-  color: var(--ink-text-inverse);
-  background: var(--ink-dark-hover);
-}
-
-/* Input */
-.input-ink {
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  font-size: 0.8125rem;
-  font-family: var(--ink-sans);
-  color: var(--ink-text);
-  background: var(--ink-white);
-  border: 1px solid var(--ink-border);
-  border-radius: 6px;
-  outline: none;
-  transition: border-color var(--ink-fast), box-shadow var(--ink-fast);
-}
-
-.input-ink::placeholder {
-  color: var(--ink-text-tertiary);
-}
-
-.input-ink:focus {
-  border-color: var(--ink-accent);
-  box-shadow: 0 0 0 3px var(--ink-accent-subtle);
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-/* Modal Content */
-.modal-content {
-  background: var(--ink-white);
-  border-radius: 10px;
-  box-shadow: var(--ink-shadow-lg);
-  width: 100%;
-  max-width: 420px;
-  margin: 0 1rem;
-  animation: modalIn 0.2s ease-out;
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Badge — unread count */
-.badge-ink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  font-family: var(--ink-sans);
-  color: var(--ink-white);
-  background: var(--ink-accent);
-  border-radius: 9px;
-  line-height: 1;
-}
-
-/* Divider */
-.divider-ink {
-  height: 1px;
-  background: var(--ink-border);
-  border: none;
-  margin: 0;
-}
-
 /* ============================================
    Utility — Line Clamp
    ============================================ */
@@ -320,18 +62,14 @@ body {
    Article Prose Styles
    ============================================ */
 .prose-ink {
-  font-family: var(--ink-sans);
   font-size: 0.9375rem;
   line-height: 1.8;
-  color: var(--ink-text);
 }
 
 .prose-ink :deep(h1),
 .prose-ink :deep(h2),
 .prose-ink :deep(h3) {
-  font-family: var(--ink-serif);
   font-weight: 700;
-  color: var(--ink-text);
   margin-top: 2em;
   margin-bottom: 0.75em;
   line-height: 1.3;
@@ -346,13 +84,13 @@ body {
 }
 
 .prose-ink :deep(a) {
-  color: var(--ink-accent);
+  color: rgb(var(--v-theme-primary));
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .prose-ink :deep(a:hover) {
-  color: var(--ink-accent-hover);
+  opacity: 0.8;
 }
 
 .prose-ink :deep(img) {
@@ -363,15 +101,15 @@ body {
 }
 
 .prose-ink :deep(blockquote) {
-  border-left: 3px solid var(--ink-accent-border);
+  border-left: 3px solid rgb(var(--v-theme-primary));
   padding-left: 1em;
   margin: 1.5em 0;
-  color: var(--ink-text-secondary);
   font-style: italic;
+  opacity: 0.75;
 }
 
 .prose-ink :deep(pre) {
-  background: var(--ink-paper);
+  background: rgb(var(--v-theme-surface-variant));
   padding: 1em;
   border-radius: 6px;
   overflow-x: auto;
@@ -380,7 +118,7 @@ body {
 }
 
 .prose-ink :deep(code) {
-  background: var(--ink-paper);
+  background: rgb(var(--v-theme-surface-variant));
   padding: 0.15em 0.35em;
   border-radius: 3px;
   font-size: 0.85em;
@@ -399,43 +137,6 @@ body {
 
 .prose-ink :deep(li) {
   margin-bottom: 0.25em;
-}
-
-/* ============================================
-   Transitions
-   ============================================ */
-
-/* Toast */
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(40px);
-}
-
-.toast-enter-to {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.toast-enter-active {
-  transition: all 0.25s ease-out;
-}
-
-.toast-leave-from {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(40px);
-}
-
-.toast-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.toast-move {
-  transition: transform 0.25s ease;
 }
 
 /* ============================================

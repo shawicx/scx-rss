@@ -7,14 +7,17 @@ import ArticleView from '@/components/ArticleView.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 import type { Article } from '@/types'
 import { useToast } from '@/composables/useToast'
+import { useTheme } from '@/composables/useTheme'
 
 const { showError } = useToast()
+const { initTheme } = useTheme()
 
 const currentFeedId = ref<number | undefined>(undefined)
 const currentArticle = ref<Article | undefined>(undefined)
 const isInitialized = ref(false)
 
 onMounted(async () => {
+  initTheme()
   try {
     await invoke('init_db')
     isInitialized.value = true
@@ -35,26 +38,49 @@ const handleArticleSelected = (article: Article) => {
 </script>
 
 <template>
-  <div class="h-screen w-screen flex overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="flex-shrink-0 h-full" style="width: var(--ink-sidebar-w)">
-      <Sidebar v-if="isInitialized" @feed-selected="handleFeedSelected" />
-    </aside>
+  <v-app>
+    <div style="display: flex; height: 100vh; overflow: hidden;">
+      <!-- Sidebar -->
+      <aside class="sidebar-panel">
+        <Sidebar v-if="isInitialized" @feed-selected="handleFeedSelected" />
+      </aside>
 
-    <!-- Article List -->
-    <section class="flex-shrink-0 h-full border-l" style="width: var(--ink-list-w); border-color: var(--ink-border)">
-      <ArticleList
-        v-if="isInitialized"
-        :feed-id="currentFeedId"
-        @article-selected="handleArticleSelected"
-      />
-    </section>
+      <!-- Article List -->
+      <section class="list-panel">
+        <ArticleList
+          v-if="isInitialized"
+          :feed-id="currentFeedId"
+          @article-selected="handleArticleSelected"
+        />
+      </section>
 
-    <!-- Article Reader -->
-    <main class="flex-1 h-full min-w-0" style="background: var(--ink-paper-bright)">
-      <ArticleView :article="currentArticle" />
-    </main>
+      <!-- Article Reader -->
+      <main class="reader-panel">
+        <ArticleView :article="currentArticle" />
+      </main>
 
-    <ToastContainer />
-  </div>
+      <ToastContainer />
+    </div>
+  </v-app>
 </template>
+
+<style scoped>
+.sidebar-panel {
+  width: 272px;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.list-panel {
+  width: 360px;
+  flex-shrink: 0;
+  height: 100%;
+  border-left: 1px solid rgb(var(--v-theme-surface-variant));
+}
+
+.reader-panel {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+</style>

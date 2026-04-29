@@ -103,93 +103,68 @@ const progressPercentage = () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay">
-    <div class="modal-content">
+  <v-dialog :model-value="show" max-width="420">
+    <v-card>
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 pt-5 pb-3">
-        <h3 class="text-sm font-semibold" style="color: var(--ink-text)">批量刷新</h3>
-        <button
-          class="close-btn w-7 h-7 flex items-center justify-center rounded-md transition-colors duration-150"
-          @click="emit('close')"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
+      <v-card-title class="d-flex align-center justify-between pa-5 pb-3">
+        <span class="text-body-1 font-weight-semibold">批量刷新</span>
+        <v-btn icon variant="text" size="small" @click="emit('close')">
+          <v-icon size="18">mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
 
-      <!-- Progress -->
-      <div class="px-5 space-y-3">
+      <v-card-text class="px-5">
         <!-- Progress bar -->
-        <div>
-          <div class="flex justify-between text-xs mb-1.5" style="color: var(--ink-text-secondary)">
+        <div class="mb-3">
+          <div class="d-flex justify-between text-caption mb-2">
             <span>{{ current }} / {{ total }}</span>
             <span>{{ progressPercentage() }}%</span>
           </div>
-          <div class="w-full rounded-full h-1" style="background: var(--ink-border-light)">
-            <div
-              class="h-1 rounded-full transition-all duration-300"
-              style="background: var(--ink-accent)"
-              :style="{ width: progressPercentage() + '%' }"
-            ></div>
-          </div>
+          <v-progress-linear
+            :model-value="progressPercentage()"
+            color="primary"
+            height="4"
+            rounded
+          />
         </div>
 
         <!-- Current feed -->
-        <div
-          v-if="currentFeedTitle"
-          class="text-xs truncate"
-          style="color: var(--ink-text-tertiary)"
-        >
+        <p v-if="currentFeedTitle" class="text-caption text-medium-emphasis text-truncate mb-3">
           正在刷新：{{ currentFeedTitle }}
-        </div>
+        </p>
 
         <!-- Stats -->
-        <div class="grid grid-cols-3 gap-3 text-center">
-          <div>
-            <div class="text-lg font-semibold" style="color: var(--ink-success)">
-              {{ successCount }}
-            </div>
-            <div class="text-[10px]" style="color: var(--ink-text-tertiary)">成功</div>
+        <div class="d-flex ga-3 text-center mt-3">
+          <div class="flex-1-1">
+            <div class="text-h6 font-weight-bold text-success">{{ successCount }}</div>
+            <div class="text-caption text-medium-emphasis">成功</div>
           </div>
-          <div>
-            <div class="text-lg font-semibold" style="color: var(--ink-error)">
-              {{ failureCount }}
-            </div>
-            <div class="text-[10px]" style="color: var(--ink-text-tertiary)">失败</div>
+          <div class="flex-1-1">
+            <div class="text-h6 font-weight-bold text-error">{{ failureCount }}</div>
+            <div class="text-caption text-medium-emphasis">失败</div>
           </div>
-          <div>
-            <div class="text-lg font-semibold" style="color: var(--ink-accent)">
-              {{ totalNewArticles }}
-            </div>
-            <div class="text-[10px]" style="color: var(--ink-text-tertiary)">新文章</div>
+          <div class="flex-1-1">
+            <div class="text-h6 font-weight-bold text-primary">{{ totalNewArticles }}</div>
+            <div class="text-caption text-medium-emphasis">新文章</div>
           </div>
         </div>
-      </div>
+      </v-card-text>
 
-      <!-- Footer -->
-      <div
-        class="flex justify-end px-5 py-3 mt-1"
-        style="border-top: 1px solid var(--ink-border-light)"
-      >
-        <button :disabled="isCancelling" class="btn-ghost text-xs" @click="cancelRefresh">
+      <v-divider />
+      <v-card-actions class="justify-end pa-3">
+        <v-btn variant="text" size="small" :loading="isCancelling" @click="cancelRefresh">
           {{ isCancelling ? '取消中...' : '取消刷新' }}
-        </button>
-      </div>
-    </div>
-  </div>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>
-.close-btn {
-  color: var(--ink-text-tertiary);
+.flex-1-1 {
+  flex: 1 1 0;
 }
-.close-btn:hover {
-  background: var(--ink-paper);
+.justify-between {
+  justify-content: space-between;
 }
 </style>
