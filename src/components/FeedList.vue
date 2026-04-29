@@ -20,12 +20,7 @@ const emit = defineEmits<{
   (e: 'feed-selected', feedId: number): void
 }>()
 
-const {
-  addFeed,
-  deleteFeed,
-  refreshFeed,
-  refreshAllFeeds
-} = useFeeds()
+const { addFeed, deleteFeed, refreshFeed, refreshAllFeeds } = useFeeds()
 
 const { showError } = useToast()
 
@@ -67,10 +62,7 @@ const handleAddFeed = async () => {
   }
 
   adding.value = true
-  const success = await addFeed(
-    newFeedUrl.value,
-    newFeedCategory.value || undefined
-  )
+  const success = await addFeed(newFeedUrl.value, newFeedCategory.value || undefined)
 
   adding.value = false
 
@@ -113,17 +105,17 @@ const handleRefreshAll = async () => {
     <!-- 工具栏 -->
     <div class="flex gap-2 mb-3 px-2">
       <button
-        @click="openAddDialog"
         class="btn-sunset flex-1 px-3 py-1.5 text-sm"
         :disabled="loading"
+        @click="openAddDialog"
       >
         + 添加
       </button>
       <button
-        @click="handleRefreshAll"
         class="flex-1 px-3 py-1.5 text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded hover:from-amber-600 hover:to-orange-600 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         :disabled="loading || feeds.length === 0"
         title="刷新所有订阅源"
+        @click="handleRefreshAll"
       >
         ↻ 全部刷新
       </button>
@@ -139,16 +131,18 @@ const handleRefreshAll = async () => {
       <div
         v-for="feed in feeds"
         :key="feed.id"
-        @click="handleSelectFeed(feed.id)"
         class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all duration-300 hover:scale-[1.01]"
         :class="[
           selectedFeedId === feed.id
             ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-900 shadow-sm'
-            : 'hover:bg-orange-50 text-gray-700'
+            : 'hover:bg-orange-50 text-gray-700',
         ]"
+        @click="handleSelectFeed(feed.id)"
       >
         <!-- Feed 图标 -->
-        <div class="flex-shrink-0 w-8 h-8 rounded bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+        <div
+          class="flex-shrink-0 w-8 h-8 rounded bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm"
+        >
           {{ feed.title.charAt(0).toUpperCase() }}
         </div>
 
@@ -165,16 +159,16 @@ const handleRefreshAll = async () => {
         <!-- 操作按钮 -->
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            @click.stop="handleRefreshFeed(feed.id)"
             class="w-7 h-7 flex items-center justify-center text-orange-600 hover:bg-gradient-to-br hover:from-orange-400 hover:to-amber-500 hover:text-white rounded-full transition-all duration-300 hover:scale-110"
             title="刷新"
+            @click.stop="handleRefreshFeed(feed.id)"
           >
             ↻
           </button>
           <button
-            @click.stop="handleDeleteFeed(feed.id, feed.title)"
             class="w-7 h-7 flex items-center justify-center text-orange-600 hover:text-white hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500 rounded-full transition-all duration-300 hover:scale-110"
             title="删除"
+            @click.stop="handleDeleteFeed(feed.id, feed.title)"
           >
             ✕
           </button>
@@ -202,34 +196,32 @@ const handleRefreshAll = async () => {
               placeholder="https://example.com/feed.xml"
               class="input-sunset"
               @keypress.enter="handleAddFeed"
-            >
+            />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              分类（可选）
-            </label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"> 分类（可选） </label>
             <input
               v-model="newFeedCategory"
               type="text"
               placeholder="例如：技术、新闻"
               class="input-sunset"
               @keypress.enter="handleAddFeed"
-            >
+            />
           </div>
         </div>
 
         <div class="flex gap-3 mt-6">
           <button
-            @click="showAddDialog = false"
             class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-all duration-300 hover:scale-105"
+            @click="showAddDialog = false"
           >
             取消
           </button>
           <button
-            @click="handleAddFeed"
             :disabled="adding || !newFeedUrl"
             class="btn-sunset flex-1 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            @click="handleAddFeed"
           >
             {{ adding ? '添加中...' : '添加' }}
           </button>

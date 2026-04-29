@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
-import type { Feed, NewFeed } from '@/types'
+import type { Feed } from '@/types'
 import { invoke } from '@tauri-apps/api/core'
 import { useToast } from './useToast'
 

@@ -213,21 +213,43 @@ interface Article {
 
 ## 样式系统
 
+### 设计语言：暖墨（Warm Ink）
+
+> `src/styles/theme.css`
+
+编辑式设计系统，深色侧边栏 + 暖纸色内容区，以阅读体验为核心。
+
+**配色方案：**
+
+| 角色 | 变量 | 用途 |
+|------|------|------|
+| 深色背景 | `--ink-dark` (#0f0e11) | 侧边栏 |
+| 深色浮层 | `--ink-dark-raised` | 侧边栏悬停/激活 |
+| 暖纸色 | `--ink-paper` (#f6f2ec) | 文章列表背景 |
+| 亮纸色 | `--ink-paper-bright` (#faf8f4) | 文章阅读器背景 |
+| 铜色强调 | `--ink-accent` (#c07a4a) | 按钮、选中态、链接 |
+| 正文色 | `--ink-text` (#1a1a1a) | 主要文字 |
+| 辅助文字 | `--ink-text-secondary` | 次要信息 |
+| 反色文字 | `--ink-text-inverse` | 侧边栏文字 |
+
+**字体：**
+- 标题：`'Playfair Display', Georgia, 'Noto Serif SC', serif`
+- 正文：`-apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif`
+
+**组件类：**
+- `.btn-ink` — 主按钮（铜色）
+- `.btn-ghost` — 幽灵按钮（浅色背景）
+- `.btn-ghost-dark` — 幽灵按钮（深色背景）
+- `.input-ink` — 输入框
+- `.modal-overlay` / `.modal-content` — 模态框
+- `.prose-ink` — 文章正文排版
+- `.badge-ink` — 未读数徽章
+
 ### UnoCSS
 
 > `unocss.config.ts`
 
-使用 `presetWind`（Tailwind CSS 兼容）预设，在 `main.ts` 中通过 `import 'virtual:uno.css'` 引入。
-
-### 夕阳色主题
-
-> `src/styles/sunset-theme.css`
-
-自定义 CSS 变量定义日落色系配色方案，整体使用暖色调渐变：
-
-- 背景渐变：`from-orange-50 to-amber-50`
-- 边框：`border-orange-200`
-- 强调色：橙色/琥珀色系
+使用 `presetWind`（Tailwind CSS 兼容）预设，自定义 `ink-*` 色值。
 
 ### 关联文件
 
@@ -236,5 +258,5 @@ interface Article {
 - `src/composables/*.ts`
 - `src/types/*.ts`
 - `src/utils/*.ts`
-- `src/styles/sunset-theme.css`
+- `src/styles/theme.css`
 - `unocss.config.ts`

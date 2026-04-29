@@ -4,10 +4,6 @@ import type { Article } from '@/types'
 import { useArticles } from '@/composables/useArticles'
 import { formatDate } from '@/utils/formatters'
 
-/**
- * 文章列表组件
- * 显示文章列表，支持筛选和状态显示
- */
 interface Props {
   feedId?: number
 }
@@ -18,68 +14,43 @@ const emit = defineEmits<{
   (e: 'article-selected', article: Article): void
 }>()
 
-const {
-  articles,
-  loading,
-  currentFeedId,
-  unreadCount,
-  starredCount,
-  loadArticlesByFeed,
-  toggleRead,
-  toggleStar
-} = useArticles()
+const { articles, loading, unreadCount, starredCount, loadArticlesByFeed, toggleRead, toggleStar } =
+  useArticles()
 
-// 筛选模式：'all' | 'unread' | 'starred'
 const filterMode = ref<'all' | 'unread' | 'starred'>('all')
-
-// 当前选中的文章 ID
 const selectedArticleId = ref<number | undefined>(undefined)
 
-/**
- * 组件挂载时加载文章
- */
 onMounted(async () => {
   if (props.feedId !== undefined) {
     await loadArticlesByFeed(props.feedId)
   }
 })
 
-/**
- * 监听 feedId 变化
- */
-watch(() => props.feedId, async (newFeedId) => {
-  selectedArticleId.value = undefined
-  if (newFeedId !== undefined) {
-    await loadArticlesByFeed(newFeedId)
-  } else {
-    articles.value = []
+watch(
+  () => props.feedId,
+  async newFeedId => {
+    selectedArticleId.value = undefined
+    if (newFeedId !== undefined) {
+      await loadArticlesByFeed(newFeedId)
+    } else {
+      articles.value = []
+    }
   }
-})
+)
 
-/**
- * 选择文章
- */
 const handleSelectArticle = (article: Article) => {
   selectedArticleId.value = article.id
   emit('article-selected', article)
-
-  // 自动标记为已读
   if (!article.is_read) {
     toggleRead(article.id)
   }
 }
 
-/**
- * 切换收藏状态
- */
 const handleToggleStar = async (articleId: number, event: Event) => {
   event.stopPropagation()
   await toggleStar(articleId)
 }
 
-/**
- * 切换筛选模式
- */
 const setFilterMode = async (mode: 'all' | 'unread' | 'starred') => {
   filterMode.value = mode
   if (mode === 'unread') {
@@ -91,119 +62,149 @@ const setFilterMode = async (mode: 'all' | 'unread' | 'starred') => {
   }
 }
 
-/**
- * 获取文章摘要
- */
 const getArticleSummary = (article: Article): string => {
   if (article.description) {
-    return article.description.replace(/<[^>]*>/g, '').substring(0, 150)
+    return article.description.replace(/<[^>]*>/g, '').substring(0, 140)
   }
   if (article.content) {
-    return article.content.replace(/<[^>]*>/g, '').substring(0, 150)
+    return article.content.replace(/<[^>]*>/g, '').substring(0, 140)
   }
   return '暂无摘要'
 }
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-white">
-    <!-- 筛选工具栏 -->
-    <div class="flex items-center gap-2 p-4 border-b border-orange-200">
+  <div class="h-full flex flex-col" style="background: var(--ink-paper)">
+    <!-- Filter Bar -->
+    <div
+      class="flex items-center gap-1 px-4 py-3"
+      style="border-bottom: 1px solid var(--ink-border)"
+    >
       <button
-        @click="setFilterMode('all')"
-        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
-        :class="filterMode === 'all' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+        v-for="mode in ['all', 'unread', 'starred'] as const"
+        :key="mode"
+        class="px-2.5 py-1 text-xs rounded transition-colors duration-150"
+        :style="{
+          background: filterMode === mode ? 'var(--ink-accent)' : 'transparent',
+          color: filterMode === mode ? '#fff' : 'var(--ink-text-secondary)',
+          fontWeight: filterMode === mode ? 500 : 400,
+        }"
+        @click="setFilterMode(mode)"
       >
-        全部
-      </button>
-      <button
-        @click="setFilterMode('unread')"
-        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
-        :class="filterMode === 'unread' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
-      >
-        未读 ({{ unreadCount }})
-      </button>
-      <button
-        @click="setFilterMode('starred')"
-        class="px-3 py-1.5 text-sm rounded transition-all duration-300 hover:scale-105"
-        :class="filterMode === 'starred' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
-      >
-        收藏 ({{ starredCount }})
+        {{
+          mode === 'all'
+            ? '全部'
+            : mode === 'unread'
+              ? `未读 ${unreadCount}`
+              : `收藏 ${starredCount}`
+        }}
       </button>
     </div>
 
-    <!-- 文章列表 -->
+    <!-- Article List -->
     <div class="flex-1 overflow-y-auto">
-      <!-- 空状态 -->
+      <!-- Empty State -->
       <div
         v-if="articles.length === 0 && !loading"
-        class="flex flex-col items-center justify-center h-full text-gray-500"
+        class="flex flex-col items-center justify-center h-full px-6"
       >
-        <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <svg
+          class="w-12 h-12 mb-3"
+          style="color: var(--ink-text-tertiary)"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+          />
         </svg>
-        <p class="text-lg">暂无文章</p>
-        <p class="text-sm mt-2">
-          {{ filterMode === 'unread' ? '没有未读文章' : filterMode === 'starred' ? '没有收藏的文章' : '选择一个订阅源开始阅读' }}
+        <p class="text-sm" style="color: var(--ink-text-tertiary)">暂无文章</p>
+        <p class="text-xs mt-1" style="color: var(--ink-text-tertiary)">
+          {{
+            filterMode === 'unread'
+              ? '没有未读文章'
+              : filterMode === 'starred'
+                ? '没有收藏文章'
+                : '选择一个订阅源'
+          }}
         </p>
       </div>
 
-      <!-- 加载状态 -->
-      <div
-        v-if="loading"
-        class="flex items-center justify-center h-full"
-      >
-        <div class="text-gray-500">加载中...</div>
+      <!-- Loading -->
+      <div v-if="loading" class="flex items-center justify-center h-full">
+        <div class="text-xs" style="color: var(--ink-text-tertiary)">加载中...</div>
       </div>
 
-      <!-- 文章列表 -->
-      <div v-else class="divide-y divide-orange-100">
+      <!-- Articles -->
+      <div v-else>
         <article
           v-for="article in articles"
           :key="article.id"
+          class="article-row group relative px-5 py-3.5 cursor-pointer transition-colors duration-150"
+          :class="{ 'article-row--active': selectedArticleId === article.id }"
           @click="handleSelectArticle(article)"
-          class="article-card group p-4 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:shadow-md hover:translate-x-1"
-          :class="{ 'bg-gradient-to-r from-orange-100 to-amber-100': selectedArticleId === article.id }"
         >
+          <!-- Active indicator -->
+          <div
+            v-if="selectedArticleId === article.id"
+            class="absolute left-0 top-2 bottom-2 w-[3px] rounded-r"
+            style="background: var(--ink-accent)"
+          ></div>
+
           <div class="flex gap-3">
-            <!-- 已读/未读指示器 -->
-            <div class="flex-shrink-0 mt-1">
+            <!-- Unread dot -->
+            <div class="flex-shrink-0 pt-1.5">
               <div
-                class="w-2.5 h-2.5 rounded-full transition-all duration-300"
-                :class="article.is_read ? 'bg-gray-300' : 'bg-gradient-to-br from-orange-400 to-amber-500 shadow-sm'"
-              />
+                class="w-1.5 h-1.5 rounded-full"
+                :style="{ background: article.is_read ? 'transparent' : 'var(--ink-accent)' }"
+              ></div>
             </div>
 
-            <!-- 文章内容 -->
+            <!-- Content -->
             <div class="flex-1 min-w-0">
-              <!-- 标题和收藏按钮 -->
-              <div class="flex items-start gap-2">
+              <!-- Title + Star -->
+              <div class="flex items-start gap-1.5">
                 <h3
-                  class="flex-1 text-base font-medium text-gray-900 truncate group-hover:text-orange-700 transition-colors"
-                  :class="{ 'font-normal text-gray-600': article.is_read }"
+                  class="flex-1 text-sm leading-snug truncate"
+                  :style="{
+                    fontWeight: article.is_read ? 400 : 500,
+                    color: article.is_read ? 'var(--ink-text-secondary)' : 'var(--ink-text)',
+                  }"
                 >
                   {{ article.title }}
                 </h3>
                 <button
-                  @click="handleToggleStar(article.id, $event)"
-                  class="flex-shrink-0 transition-all duration-300 hover:scale-125"
-                  :class="article.is_starred ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'"
+                  class="star-btn flex-shrink-0 mt-0.5 transition-opacity duration-100"
+                  :class="{ 'star-btn--active': article.is_starred }"
                   title="收藏"
+                  @click="handleToggleStar(article.id, $event)"
                 >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                    />
                   </svg>
                 </button>
               </div>
 
-              <!-- 元信息 -->
-              <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                <span class="text-orange-600">{{ formatDate(article.published_at || article.created_at) }}</span>
-                <span v-if="article.author" class="text-gray-400">· {{ article.author }}</span>
+              <!-- Meta -->
+              <div
+                class="flex items-center gap-1.5 mt-1 text-[11px]"
+                style="color: var(--ink-text-tertiary)"
+              >
+                <span>{{ formatDate(article.published_at || article.created_at) }}</span>
+                <span v-if="article.author">· {{ article.author }}</span>
               </div>
 
-              <!-- 摘要 -->
-              <p class="mt-2 text-sm text-gray-600 line-clamp-2">
+              <!-- Summary -->
+              <p
+                class="mt-1.5 text-xs leading-relaxed line-clamp-2"
+                style="color: var(--ink-text-secondary)"
+              >
                 {{ getArticleSummary(article) }}
               </p>
             </div>
@@ -222,38 +223,30 @@ const getArticleSummary = (article: Article): string => {
   overflow: hidden;
 }
 
-/* 文章卡片进入动画 */
-.article-card {
-  animation: fadeInUp 0.4s ease-out;
-}
-
-/* 自定义滚动条样式 */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 8px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
+.article-row {
   background: transparent;
+  border-bottom: 1px solid var(--ink-border-light);
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 142, 83, 0.3);
-  border-radius: 4px;
+.article-row:hover {
+  background: var(--ink-white);
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 142, 83, 0.5);
+.article-row--active {
+  background: var(--ink-white);
 }
 
-/* 淡入上升动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.star-btn {
+  color: var(--ink-text-tertiary);
+  opacity: 0;
+}
+
+.star-btn--active {
+  color: var(--ink-accent);
+  opacity: 1;
+}
+
+.group:hover .star-btn {
+  opacity: 1;
 }
 </style>

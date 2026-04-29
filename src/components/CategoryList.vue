@@ -5,11 +5,6 @@ import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
 import { validateFeedUrl } from '@/utils/validators'
 
-/**
- * 分类列表组件
- * 显示所有分类及其未读计数，支持折叠/展开
- * 每个 分类下方显示该分类的 Feeds
- */
 interface Props {
   categories: Category[]
   feeds: Feed[]
@@ -28,150 +23,89 @@ const emit = defineEmits<{
 const { addFeed } = useFeeds()
 const { showError } = useToast()
 
-// 折叠状态（分类名 -> 是否折叠）
 const collapsedState = ref<Record<string, boolean>>({})
-
-// 添加 Feed 的对话框状态
 const showAddDialog = ref(false)
 const newFeedUrl = ref('')
 const newFeedCategory = ref('')
 const adding = ref(false)
 
-/**
- * 切换分类折叠状态
- */
 const toggleCollapse = (categoryName: string) => {
   collapsedState.value[categoryName] = !collapsedState.value[categoryName]
 }
 
-/**
- * 判断分类是否折叠
- */
 const isCollapsed = (categoryName: string): boolean => {
   return collapsedState.value[categoryName] || false
 }
 
-/**
- * 获取指定分类下的 Feeds
- */
 const getFeedsByCategory = (categoryName: string | null): Feed[] => {
   if (categoryName === null) {
-    // "全部文章"分类：显示没有分类的 Feeds
     return props.feeds.filter(feed => !feed.category)
   }
-  // 其他分类：显示匹配该分类的 Feeds
   return props.feeds.filter(feed => feed.category === categoryName)
 }
 
-/**
- * 选择 Feed
- */
 const handleSelectFeed = (feedId: number) => {
   emit('feed-selected', feedId)
 }
 
-/**
- * 删除 Feed
- */
 const handleDeleteFeed = (feedId: number, feedTitle: string) => {
-  const confirmed = confirm(`确定要删除订阅源 "${feedTitle}" 吗？`)
-  if (confirmed) {
-    emit('feed-delete', feedId)
-  }
+  const confirmed = confirm(`确定要删除 "${feedTitle}" 吗？`)
+  if (confirmed) emit('feed-delete', feedId)
 }
 
-/**
- * 刷新 Feed
- */
 const handleRefreshFeed = (feedId: number) => {
   emit('feed-refresh', feedId)
 }
 
-/**
- * 显示添加 Feed 对话框
- */
 const openAddDialog = () => {
   newFeedUrl.value = ''
   newFeedCategory.value = ''
   showAddDialog.value = true
 }
 
-/**
- * 添加新的 Feed
- */
 const handleAddFeed = async () => {
-  // 验证 URL
   const validation = validateFeedUrl(newFeedUrl.value)
   if (!validation.valid) {
-    showError(validation.error)
+    showError(validation?.error)
     return
   }
-
   adding.value = true
-  const success = await addFeed(
-    newFeedUrl.value,
-    newFeedCategory.value || undefined
-  )
-
+  const success = await addFeed(newFeedUrl.value, newFeedCategory.value || undefined)
   adding.value = false
-
-  if (success) {
-    showAddDialog.value = false
-  }
+  if (success) showAddDialog.value = false
 }
 </script>
 
 <template>
-  <div class="p-2">
-    <!-- 工具栏：添加 Feed 按钮 -->
-    <div class="mb-3 px-2">
-      <button
-        @click="openAddDialog"
-        class="btn-sunset w-full px-3 py-2 text-sm"
-        :disabled="loading"
-      >
-        + 添加订阅源
-      </button>
+  <div class="px-3">
+    <!-- Add Feed Button -->
+    <button :disabled="loading" class="btn-ghost-dark text-sm py-2 mb-1" @click="openAddDialog">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      添加订阅源
+    </button>
+
+    <!-- Empty state -->
+    <div
+      v-if="categories.length === 0 && !loading"
+      class="py-8 text-center"
+      style="color: var(--ink-text-inverse-muted)"
+    >
+      <p class="text-sm">暂无分类</p>
     </div>
 
-    <!-- 分类列表 -->
-    <div v-if="categories.length === 0 && !loading" class="px-3 py-4 text-center text-gray-500 text-xs">
-      <p>暂无分类</p>
-    </div>
-
-    <div v-else class="space-y-2">
-      <div
-        v-for="category in categories"
-        :key="category.name"
-        class="flex flex-col"
-      >
-        <!-- 分类头部 -->
-        <div
+    <!-- Categories -->
+    <div v-else>
+      <div v-for="category in categories" :key="category.name">
+        <!-- Category Header -->
+        <button
+          class="cat-header w-full flex items-center gap-2 px-2 py-2 rounded text-left transition-colors duration-150"
           @click="toggleCollapse(category.name)"
-          class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all duration-300 hover:bg-orange-100 hover:scale-[1.02]"
         >
-          <button
-            @click.stop="toggleCollapse(category.name)"
-            class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-amber-500 text-white transition-all duration-300 hover:from-orange-500 hover:to-amber-600 hover:scale-110"
-            :class="{ 'rotate-0': !isCollapsed(category.name), 'rotate-[-90deg]': isCollapsed(category.name) }"
-          >
-            <svg
-              class="w-3 h-3 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
           <svg
-            class="w-5 h-5 flex-shrink-0 text-orange-600"
+            class="w-3 h-3 flex-shrink-0 transition-transform duration-150"
+            :class="{ '-rotate-90': isCollapsed(category.name) }"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -180,123 +114,125 @@ const handleAddFeed = async () => {
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+              d="M19 9l-7 7-7-7"
             />
           </svg>
-
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate text-gray-800">
-              {{ category.name }}
-            </div>
-            <div class="text-xs text-orange-600">
-              {{ category.feed_count }} 个订阅源
-            </div>
-          </div>
-
-          <div
+          <span class="text-sm font-medium tracking-wide uppercase flex-1 truncate">{{
+            category.name
+          }}</span>
+          <span
             v-if="category.unread_count > 0"
-            class="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full"
+            class="badge-count text-xs font-semibold px-2 py-0.5 rounded-full"
           >
             {{ category.unread_count }}
-          </div>
-        </div>
+          </span>
+        </button>
 
-        <!-- 该分类下的 Feeds -->
-        <div v-if="!isCollapsed(category.name)" class="ml-4 mt-1 space-y-1">
+        <!-- Feeds under category -->
+        <div v-if="!isCollapsed(category.name)" class="ml-1">
           <div
             v-for="feed in getFeedsByCategory(category.name)"
             :key="feed.id"
+            class="feed-item group flex items-center gap-2.5 px-2.5 py-2 rounded cursor-pointer transition-colors duration-150"
+            :class="{ 'feed-item--active': selectedFeedId === feed.id }"
             @click="handleSelectFeed(feed.id)"
-            class="group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-all duration-300 hover:scale-[1.01]"
-            :class="[
-              selectedFeedId === feed.id
-                ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-900 shadow-sm'
-                : 'hover:bg-orange-50 text-gray-700'
-            ]"
           >
-            <div class="flex-shrink-0 w-6 h-6 rounded bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            <!-- Feed initial -->
+            <div
+              class="feed-avatar w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-xs font-bold"
+            >
               {{ feed.title.charAt(0).toUpperCase() }}
             </div>
 
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium truncate">
-                {{ feed.title }}
-              </div>
-            </div>
+            <span class="flex-1 text-sm truncate">{{ feed.title }}</span>
 
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <!-- Actions -->
+            <div class="feed-actions flex items-center gap-0.5">
               <button
-                @click.stop="handleRefreshFeed(feed.id)"
-                class="w-7 h-7 flex items-center justify-center text-orange-600 hover:bg-gradient-to-br hover:from-orange-400 hover:to-amber-500 hover:text-white rounded-full transition-all duration-300 hover:scale-110"
+                class="action-btn w-6 h-6 flex items-center justify-center rounded"
                 title="刷新"
+                @click.stop="handleRefreshFeed(feed.id)"
               >
-                ↻
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
               </button>
               <button
-                @click.stop="handleDeleteFeed(feed.id, feed.title)"
-                class="w-7 h-7 flex items-center justify-center text-orange-600 hover:text-white hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500 rounded-full transition-all duration-300 hover:scale-110"
+                class="action-btn action-btn--danger w-6 h-6 flex items-center justify-center rounded"
                 title="删除"
+                @click.stop="handleDeleteFeed(feed.id, feed.title)"
               >
-                ✕
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
           </div>
 
-          <div v-if="getFeedsByCategory(category.name).length === 0" class="px-3 py-2 text-xs text-orange-600">
-            该分类下暂无订阅源
+          <div
+            v-if="getFeedsByCategory(category.name).length === 0"
+            class="px-3 py-2 text-sm"
+            style="color: var(--ink-text-inverse-muted)"
+          >
+            暂无订阅源
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 添加 Feed 对话框 -->
-    <div
-      v-if="showAddDialog"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click.self="showAddDialog = false"
-    >
-      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">添加订阅源</h3>
+    <!-- Add Feed Modal -->
+    <div v-if="showAddDialog" class="modal-overlay" @click.self="showAddDialog = false">
+      <div class="modal-content">
+        <div class="px-5 pt-5 pb-3">
+          <h3 class="text-sm font-semibold" style="color: var(--ink-text)">添加订阅源</h3>
+        </div>
 
-        <div class="space-y-4">
+        <div class="px-5 space-y-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Feed URL <span class="text-red-500">*</span>
+            <label class="block text-xs font-medium mb-1" style="color: var(--ink-text-secondary)">
+              Feed URL <span style="color: var(--ink-error)">*</span>
             </label>
             <input
               v-model="newFeedUrl"
               type="url"
               placeholder="https://example.com/feed.xml"
-              class="input-sunset"
+              class="input-ink text-xs"
               @keypress.enter="handleAddFeed"
-            >
+            />
           </div>
-
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label class="block text-xs font-medium mb-1" style="color: var(--ink-text-secondary)">
               分类（可选）
             </label>
             <input
               v-model="newFeedCategory"
               type="text"
               placeholder="例如：技术、新闻"
-              class="input-sunset"
+              class="input-ink text-xs"
               @keypress.enter="handleAddFeed"
-            >
+            />
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div
+          class="flex gap-2 px-5 py-4 mt-2"
+          style="border-top: 1px solid var(--ink-border-light)"
+        >
+          <button class="btn-ghost flex-1 text-xs" @click="showAddDialog = false">取消</button>
           <button
-            @click="showAddDialog = false"
-            class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-all duration-300 hover:scale-105"
-          >
-            取消
-          </button>
-          <button
-            @click="handleAddFeed"
             :disabled="adding || !newFeedUrl"
-            class="btn-sunset flex-1 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            class="btn-ink flex-1 text-xs"
+            @click="handleAddFeed"
           >
             {{ adding ? '添加中...' : '添加' }}
           </button>
@@ -307,12 +243,62 @@ const handleAddFeed = async () => {
 </template>
 
 <style scoped>
-/* 组件特定样式 */
-.rotate-0 {
-  transform: rotate(0deg);
+.cat-header {
+  color: var(--ink-text-inverse-muted);
+  background: transparent;
+}
+.cat-header:hover {
+  background: var(--ink-dark-hover);
+  color: var(--ink-text-inverse);
 }
 
-.rotate-\[-90deg\] {
-  transform: rotate(-90deg);
+.badge-count {
+  background: var(--ink-accent-subtle);
+  color: var(--ink-accent);
+}
+
+.feed-item {
+  color: var(--ink-text-inverse-muted);
+  background: transparent;
+}
+.feed-item:hover {
+  background: var(--ink-dark-hover);
+}
+.feed-item--active {
+  background: var(--ink-dark-active);
+  color: var(--ink-accent);
+}
+.feed-item--active:hover {
+  background: var(--ink-dark-active);
+}
+
+.feed-avatar {
+  background: var(--ink-dark-hover);
+  color: var(--ink-text-inverse-muted);
+}
+.feed-item--active .feed-avatar {
+  background: var(--ink-accent);
+  color: #fff;
+}
+
+.feed-actions {
+  opacity: 0;
+  transition: opacity 100ms;
+}
+.group:hover .feed-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  color: var(--ink-text-inverse-muted);
+  transition: all 100ms;
+}
+.action-btn:hover {
+  background: var(--ink-dark-hover);
+  color: var(--ink-accent);
+}
+.action-btn--danger:hover {
+  background: var(--ink-error);
+  color: #fff;
 }
 </style>
