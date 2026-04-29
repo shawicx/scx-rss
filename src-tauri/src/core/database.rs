@@ -381,10 +381,30 @@ pub fn db_get_categories(app: &AppHandle) -> AppResult<Vec<Category>> {
     Ok(categories)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// 备份数据库到指定路径
+pub fn db_backup_database(app: &AppHandle, backup_path: &std::path::Path) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    if !db_path.exists() {
+        return Err(crate::core::error::AppError::ValidationError(
+            "Database file not found".to_string(),
+        ));
+    }
+    std::fs::copy(&db_path, backup_path)?;
+    tracing::info!("Database backed up to: {:?}", backup_path);
+    Ok(())
+}
 
-    // 注意：这些测试需要临时数据库路径
-    // 在实际项目中，应该使用内存数据库或临时文件进行测试
+/// 从备份文件恢复数据库
+pub fn db_restore_database(app: &AppHandle, backup_path: &std::path::Path) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    if !backup_path.exists() {
+        return Err(crate::core::error::AppError::ValidationError(
+            "Backup file not found".to_string(),
+        ));
+    }
+    let tmp_path = db_path.with_extension("db.tmp");
+    std::fs::copy(backup_path, &tmp_path)?;
+    std::fs::rename(&tmp_path, &db_path)?;
+    tracing::info!("Database restored from: {:?}", backup_path);
+    Ok(())
 }

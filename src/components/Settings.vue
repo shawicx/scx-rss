@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { invoke } from '@tauri-apps/api/core'
+import { save, open } from '@tauri-apps/plugin-dialog'
 import { useOpml } from '@/composables/useOpml'
 import { useFeeds } from '@/composables/useFeeds'
+import { useToast } from '@/composables/useToast'
 
 defineProps<{
   show: boolean
@@ -9,13 +12,17 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'data-restored'): void
 }>()
 
 const { exportOpml, importOpml } = useOpml()
 const { refresh } = useFeeds()
+const { showSuccess, showError, showInfo } = useToast()
 
 const isExporting = ref(false)
 const isImporting = ref(false)
+const isBackingUp = ref(false)
+const isRestoring = ref(false)
 
 const handleExport = async () => {
   if (isExporting.value) return
@@ -35,6 +42,54 @@ const handleImport = async () => {
     await refresh()
   } finally {
     isImporting.value = false
+  }
+}
+
+const handleBackup = async () => {
+  if (isBackingUp.value) return
+  isBackingUp.value = true
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const defaultName = `scx-rss-backup-${timestamp}.db`
+    const filePath = await save({
+      defaultPath: defaultName,
+      filters: [{ name: 'SQLite Database', extensions: ['db'] }]
+    })
+    if (!filePath) {
+      showInfo('备份已取消')
+      return
+    }
+    await invoke('backup_database', { backupPath: filePath })
+    showSuccess('数据库备份成功')
+  } catch (error) {
+    showError(`备份失败: ${error}`)
+  } finally {
+    isBackingUp.value = false
+  }
+}
+
+const handleRestore = async () => {
+  if (isRestoring.value) return
+  isRestoring.value = true
+  try {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: 'SQLite Database', extensions: ['db'] }]
+    })
+    if (!selected || typeof selected !== 'string') {
+      showInfo('恢复已取消')
+      return
+    }
+    if (!confirm('恢复操作将覆盖当前所有数据，是否继续？')) {
+      return
+    }
+    await invoke('restore_database', { backupPath: selected })
+    showSuccess('数据恢复成功，正在重新加载...')
+    emit('data-restored')
+  } catch (error) {
+    showError(`恢复失败: ${error}`)
+  } finally {
+    isRestoring.value = false
   }
 }
 
@@ -87,6 +142,37 @@ const close = () => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
               {{ isImporting ? '导入中...' : '导入' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Backup/Restore -->
+        <div class="mt-5 space-y-3">
+          <h3 class="text-xs font-medium" style="color: var(--ink-text-secondary)">数据备份 / 恢复</h3>
+          <p class="text-xs leading-relaxed" style="color: var(--ink-text-tertiary)">
+            备份完整数据库（含文章、订阅、阅读状态），或从备份文件恢复。
+          </p>
+
+          <div class="flex gap-2">
+            <button
+              :disabled="isBackingUp"
+              class="btn-ink flex-1 text-xs gap-1.5"
+              @click="handleBackup"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              {{ isBackingUp ? '备份中...' : '备份数据' }}
+            </button>
+            <button
+              :disabled="isRestoring"
+              class="btn-ink flex-1 text-xs gap-1.5"
+              @click="handleRestore"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              {{ isRestoring ? '恢复中...' : '恢复数据' }}
             </button>
           </div>
         </div>

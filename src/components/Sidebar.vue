@@ -157,6 +157,10 @@ const handleFeedRefresh = async (feedId: number) => {
       @complete="onRefreshComplete"
       @close="closeRefreshProgress"
     />
-    <Settings :show="showSettings" @close="showSettings = false" />
+    <Settings
+      :show="showSettings"
+      @close="showSettings = false"
+      @data-restored="() => { init(); initCategories() }"
+    />
   </div>
 </template>

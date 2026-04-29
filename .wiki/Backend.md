@@ -36,6 +36,8 @@
 | `cancel_batch_refresh` | feed | 取消批量刷新 |
 | `export_opml` | feed | 导出 OPML |
 | `import_opml` | feed | 导入 OPML |
+| `backup_database` | db | 备份数据库文件 |
+| `restore_database` | db | 从备份恢复数据库 |
 
 ## 命令层 (commands/)
 
@@ -53,6 +55,8 @@
 | `update_article` | app_handle, id, is_read?, is_starred? | `()` | 更新文章状态 |
 | `delete_feed` | app_handle, id | `()` | CASCADE 删除 Feed |
 | `get_categories` | app_handle | `Vec<Category>` | 获取分类列表 |
+| `backup_database` | app_handle, backup_path | `String` | 备份数据库到指定路径 |
+| `restore_database` | app_handle, backup_path | `String` | 从备份文件恢复数据库 |
 
 ### feed.rs — Feed/OPML 命令
 
@@ -84,6 +88,8 @@
 - Feed CRUD
 - 文章批量插入（事务 + GUID 去重）
 - 文章状态更新
+- 数据库备份（文件复制到用户指定路径）
+- 数据库恢复（从备份文件替换，使用临时文件保证原子性）
 
 ### network.rs — 网络请求
 

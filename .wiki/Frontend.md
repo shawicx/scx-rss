@@ -78,7 +78,8 @@
 > `src/components/Settings.vue`
 
 - OPML 导入/导出
-- 主题切换（规划中）
+- 数据库备份/恢复（带确认对话框）
+- 恢复后触发 `data-restored` 事件，由 Sidebar 重新加载数据
 
 ### RefreshProgress.vue — 刷新进度
 

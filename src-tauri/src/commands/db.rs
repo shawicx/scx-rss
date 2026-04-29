@@ -49,3 +49,19 @@ pub async fn delete_feed(app: AppHandle, feed_id: i64) -> Result<String, String>
 pub async fn get_categories(app: AppHandle) -> Result<Vec<Category>, String> {
     database::db_get_categories(&app).map_err(|e| e.to_string())
 }
+
+/// 备份数据库到指定路径
+#[tauri::command]
+pub async fn backup_database(app: AppHandle, backup_path: String) -> Result<String, String> {
+    let path = std::path::Path::new(&backup_path);
+    database::db_backup_database(&app, path).map_err(|e| e.to_string())?;
+    Ok("Database backed up successfully".to_string())
+}
+
+/// 从备份文件恢复数据库
+#[tauri::command]
+pub async fn restore_database(app: AppHandle, backup_path: String) -> Result<String, String> {
+    let path = std::path::Path::new(&backup_path);
+    database::db_restore_database(&app, path).map_err(|e| e.to_string())?;
+    Ok("Database restored successfully".to_string())
+}
