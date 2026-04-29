@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import type { Article } from '@/types'
 import { useArticles } from '@/composables/useArticles'
+import { useKeyboard } from '@/composables/useKeyboard'
 import { formatDate } from '@/utils/formatters'
 
 interface Props {
@@ -71,6 +72,40 @@ const getArticleSummary = (article: Article): string => {
   }
   return '暂无摘要'
 }
+
+const selectArticleByIndex = (index: number) => {
+  const article = articles.value[index]
+  if (article) {
+    handleSelectArticle(article)
+  }
+}
+
+useKeyboard({
+  onNext: () => {
+    if (articles.value.length === 0) return
+    const idx = selectedArticleId.value
+      ? articles.value.findIndex(a => a.id === selectedArticleId.value)
+      : -1
+    selectArticleByIndex(Math.min(idx + 1, articles.value.length - 1))
+  },
+  onPrev: () => {
+    if (articles.value.length === 0) return
+    const idx = selectedArticleId.value
+      ? articles.value.findIndex(a => a.id === selectedArticleId.value)
+      : 0
+    selectArticleByIndex(Math.max(idx - 1, 0))
+  },
+  onToggleRead: () => {
+    if (selectedArticleId.value) {
+      toggleRead(selectedArticleId.value)
+    }
+  },
+  onToggleStar: () => {
+    if (selectedArticleId.value) {
+      toggleStar(selectedArticleId.value)
+    }
+  }
+})
 </script>
 
 <template>

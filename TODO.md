@@ -181,11 +181,11 @@
 - [ ] 更新 `useArticles.ts` 支持筛选参数
 
 ### 2.3 键盘快捷键
-- [ ] 创建 `useKeyboard.ts`
-  - [ ] `j/k` - 上下篇
-  - [ ] `r` - 标记已读
-  - [ ] `s` - 收藏
-- [ ] 在 `ArticleView.vue` 中集成快捷键
+- [x] 创建 `useKeyboard.ts`
+  - [x] `j/k` - 上下篇
+  - [x] `r` - 标记已读
+  - [x] `s` - 收藏
+- [x] 在 `ArticleList.vue` 中集成快捷键
 
 ### 2.4 错误提示
 - [x] 实现 Toast 通知组件
