@@ -50,12 +50,13 @@ const renderContent = (): string => {
   <div class="d-flex flex-column h-100">
     <!-- Empty State -->
     <div v-if="!currentArticle" class="d-flex flex-column align-center justify-center h-100">
-      <v-sheet rounded="circle" class="d-flex align-center justify-center mb-4 pa-6 bg-surface-variant">
+      <v-sheet
+        rounded="circle"
+        class="d-flex align-center justify-center mb-4 pa-6 bg-surface-variant"
+      >
         <v-icon size="28" color="primary">mdi-book-open-variant</v-icon>
       </v-sheet>
-      <p class="text-body-1 font-weight-medium text-medium-emphasis">
-        选择一篇文章开始阅读
-      </p>
+      <p class="text-body-1 font-weight-medium text-medium-emphasis">选择一篇文章开始阅读</p>
     </div>
 
     <!-- Article Content -->
@@ -68,7 +69,13 @@ const renderContent = (): string => {
           </v-icon>
         </v-btn>
 
-        <v-btn v-if="currentArticle.is_read" icon variant="text" size="small" @click="handleMarkAsUnread">
+        <v-btn
+          v-if="currentArticle.is_read"
+          icon
+          variant="text"
+          size="small"
+          @click="handleMarkAsUnread"
+        >
           <v-icon>mdi-email-mark-as-unread</v-icon>
         </v-btn>
 
@@ -78,7 +85,13 @@ const renderContent = (): string => {
 
         <v-spacer />
 
-        <v-chip v-if="currentArticle.is_starred" size="small" color="warning" variant="tonal" class="mr-1">
+        <v-chip
+          v-if="currentArticle.is_starred"
+          size="small"
+          color="warning"
+          variant="tonal"
+          class="mr-1"
+        >
           已收藏
         </v-chip>
         <v-chip v-if="currentArticle.is_read" size="small" variant="tonal" class="mr-2">
@@ -89,12 +102,14 @@ const renderContent = (): string => {
       <!-- Article Body -->
       <article class="px-8 py-8 mx-auto">
         <!-- Title -->
-        <h1 class="text-h5 font-weight-bold mb-5" style="line-height: 1.3;">
+        <h1 class="text-h5 font-weight-bold mb-5" style="line-height: 1.3">
           {{ currentArticle.title }}
         </h1>
 
         <!-- Meta -->
-        <div class="d-flex flex-wrap align-center ga-3 text-caption text-medium-emphasis pb-6 mb-6 article-meta">
+        <div
+          class="d-flex flex-wrap align-center ga-3 text-caption text-medium-emphasis pb-6 mb-6 article-meta"
+        >
           <span v-if="currentArticle.author" class="d-flex align-center ga-1">
             <v-icon size="14">mdi-account</v-icon>
             {{ currentArticle.author }}

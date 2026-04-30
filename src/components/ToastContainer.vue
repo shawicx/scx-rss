@@ -26,7 +26,9 @@ const colorMap: Record<string, string> = {
         :key="toast.id"
         rounded="lg"
         class="elevation-4 toast-item"
-        :style="{ borderLeft: `3px solid rgb(var(--v-theme-${colorMap[toast.type] || 'primary'}))` }"
+        :style="{
+          borderLeft: `3px solid rgb(var(--v-theme-${colorMap[toast.type] || 'primary'}))`,
+        }"
         @click="removeToast(toast.id)"
       >
         <div class="d-flex align-start ga-3 pa-3">
@@ -59,13 +61,33 @@ const colorMap: Record<string, string> = {
   max-width: 340px;
 }
 
-.toast-enter-from { opacity: 0; transform: translateX(40px); }
-.toast-enter-to { opacity: 1; transform: translateX(0); }
-.toast-enter-active { transition: all 0.25s ease-out; }
-.toast-leave-from { opacity: 1; transform: translateX(0); }
-.toast-leave-to { opacity: 0; transform: translateX(40px); }
-.toast-leave-active { transition: all 0.2s ease-in; }
-.toast-move { transition: transform 0.25s ease; }
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(40px);
+}
+.toast-enter-to {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast-enter-active {
+  transition: all 0.25s ease-out;
+}
+.toast-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(40px);
+}
+.toast-leave-active {
+  transition: all 0.2s ease-in;
+}
+.toast-move {
+  transition: transform 0.25s ease;
+}
 
-.flex-fill { flex: 1; }
+.flex-fill {
+  flex: 1;
+}
 </style>

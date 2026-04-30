@@ -63,7 +63,7 @@ const handleBackup = async () => {
     const defaultName = `scx-rss-backup-${timestamp}.db`
     const filePath = await save({
       defaultPath: defaultName,
-      filters: [{ name: 'SQLite Database', extensions: ['db'] }]
+      filters: [{ name: 'SQLite Database', extensions: ['db'] }],
     })
     if (!filePath) {
       showInfo('备份已取消')
@@ -84,7 +84,7 @@ const handleRestore = async () => {
   try {
     const selected = await open({
       multiple: false,
-      filters: [{ name: 'SQLite Database', extensions: ['db'] }]
+      filters: [{ name: 'SQLite Database', extensions: ['db'] }],
     })
     if (!selected || typeof selected !== 'string') {
       showInfo('恢复已取消')
@@ -146,7 +146,7 @@ const close = () => {
               :loading="isExporting"
               color="primary"
               variant="outlined"
-              size="small"
+              size="medium"
               class="flex-1-1"
               prepend-icon="mdi-download"
               @click="handleExport"
@@ -157,7 +157,7 @@ const close = () => {
               :loading="isImporting"
               color="primary"
               variant="outlined"
-              size="small"
+              size="medium"
               class="flex-1-1"
               prepend-icon="mdi-upload"
               @click="handleImport"
@@ -178,7 +178,7 @@ const close = () => {
               :loading="isBackingUp"
               color="primary"
               variant="outlined"
-              size="small"
+              size="medium"
               class="flex-1-1"
               prepend-icon="mdi-download"
               @click="handleBackup"
@@ -189,7 +189,7 @@ const close = () => {
               :loading="isRestoring"
               color="primary"
               variant="outlined"
-              size="small"
+              size="medium"
               class="flex-1-1"
               prepend-icon="mdi-upload"
               @click="handleRestore"

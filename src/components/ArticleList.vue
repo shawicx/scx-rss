@@ -196,7 +196,7 @@ useKeyboard({
             <v-btn
               icon
               variant="text"
-              size="x-small"
+              size="small"
               @click.stop="handleToggleStar(article.id, $event)"
             >
               <v-icon size="16" :color="article.is_starred ? 'warning' : undefined">

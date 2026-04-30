@@ -133,7 +133,7 @@ const handleEditFeed = async () => {
       :disabled="loading"
       variant="text"
       block
-      size="small"
+      size="large"
       class="mb-1"
       :class="{ 'text-warm-ink': isWarmInk }"
       @click="openAddDialog"
@@ -154,10 +154,7 @@ const handleEditFeed = async () => {
     <v-list v-else density="compact" class="bg-transparent" :lines="false">
       <v-list-group v-for="category in categories" :key="category.name" :value="category.name">
         <template v-slot:activator="{ props: listProps }">
-          <v-list-item
-            v-bind="listProps"
-            class="cat-header rounded"
-          >
+          <v-list-item v-bind="listProps" class="cat-header rounded">
             <v-list-item-title class="text-body-2 font-weight-medium text-uppercase tracking-wide">
               {{ category.name }}
             </v-list-item-title>
@@ -186,8 +183,15 @@ const handleEditFeed = async () => {
           @click="handleSelectFeed(feed.id)"
         >
           <template v-slot:prepend>
-            <v-avatar size="24" rounded :color="selectedFeedId === feed.id ? 'primary' : 'surface-variant'" class="mr-2">
-              <span class="text-caption font-weight-bold">{{ feed.title.charAt(0).toUpperCase() }}</span>
+            <v-avatar
+              size="24"
+              rounded
+              :color="selectedFeedId === feed.id ? 'primary' : 'surface-variant'"
+              class="mr-1"
+            >
+              <span class="text-caption font-weight-bold">{{
+                feed.title.charAt(0).toUpperCase()
+              }}</span>
             </v-avatar>
           </template>
 
@@ -195,13 +199,31 @@ const handleEditFeed = async () => {
 
           <template v-slot:append>
             <div class="d-flex ga-0">
-              <v-btn icon variant="text" size="x-small" title="编辑" @click.stop="openEditDialog(feed)">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                title="编辑"
+                @click.stop="openEditDialog(feed)"
+              >
                 <v-icon size="14">mdi-pencil</v-icon>
               </v-btn>
-              <v-btn icon variant="text" size="x-small" title="刷新" @click.stop="handleRefreshFeed(feed.id)">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                title="刷新"
+                @click.stop="handleRefreshFeed(feed.id)"
+              >
                 <v-icon size="14">mdi-refresh</v-icon>
               </v-btn>
-              <v-btn icon variant="text" size="x-small" title="删除" @click.stop="handleDeleteFeed(feed.id, feed.title)">
+              <v-btn
+                icon
+                variant="text"
+                size="x-small"
+                title="删除"
+                @click.stop="handleDeleteFeed(feed.id, feed.title)"
+              >
                 <v-icon size="14">mdi-close</v-icon>
               </v-btn>
             </div>
@@ -251,12 +273,7 @@ const handleEditFeed = async () => {
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showAddDialog = false">取消</v-btn>
-          <v-btn
-            color="primary"
-            :loading="adding"
-            :disabled="!newFeedUrl"
-            @click="handleAddFeed"
-          >
+          <v-btn color="primary" :loading="adding" :disabled="!newFeedUrl" @click="handleAddFeed">
             添加
           </v-btn>
         </v-card-actions>
@@ -302,13 +319,7 @@ const handleEditFeed = async () => {
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showEditDialog = false">取消</v-btn>
-          <v-btn
-            color="primary"
-            :loading="saving"
-            @click="handleEditFeed"
-          >
-            保存
-          </v-btn>
+          <v-btn color="primary" :loading="saving" @click="handleEditFeed"> 保存 </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

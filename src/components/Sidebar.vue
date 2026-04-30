@@ -95,6 +95,7 @@ const handleFeedRefresh = async (feedId: number) => {
         color="primary"
         block
         class="mt-3"
+        size="large"
         prepend-icon="mdi-refresh"
         @click="startBatchRefresh"
       >
@@ -114,14 +115,19 @@ const handleFeedRefresh = async (feedId: number) => {
         @feed-selected="handleFeedSelected"
         @feed-delete="handleFeedDelete"
         @feed-refresh="handleFeedRefresh"
-        @feed-updated="() => { refresh(); refreshCategories() }"
+        @feed-updated="
+          () => {
+            refresh()
+            refreshCategories()
+          }
+        "
       />
     </div>
 
     <!-- Bottom bar -->
     <v-divider />
     <div class="pa-3">
-      <v-btn variant="text" block prepend-icon="mdi-cog" @click="showSettings = true">
+      <v-btn variant="text" block prepend-icon="mdi-cog" @click="showSettings = true" size="large">
         设置
       </v-btn>
     </div>
@@ -134,8 +140,18 @@ const handleFeedRefresh = async (feedId: number) => {
     <Settings
       :show="showSettings"
       @close="showSettings = false"
-      @data-restored="() => { init(); initCategories() }"
-      @feeds-changed="() => { refresh(); refreshCategories() }"
+      @data-restored="
+        () => {
+          init()
+          initCategories()
+        }
+      "
+      @feeds-changed="
+        () => {
+          refresh()
+          refreshCategories()
+        }
+      "
     />
   </v-sheet>
 </template>
