@@ -69,6 +69,7 @@ const handleFeedDelete = async (feedId: number) => {
   if (success && selectedFeedId.value === feedId) {
     selectedFeedId.value = undefined
   }
+  refreshCategories()
 }
 
 const handleFeedRefresh = async (feedId: number) => {
@@ -113,7 +114,7 @@ const handleFeedRefresh = async (feedId: number) => {
         @feed-selected="handleFeedSelected"
         @feed-delete="handleFeedDelete"
         @feed-refresh="handleFeedRefresh"
-        @feed-updated="refreshCategories"
+        @feed-updated="() => { refresh(); refreshCategories() }"
       />
     </div>
 
@@ -134,6 +135,7 @@ const handleFeedRefresh = async (feedId: number) => {
       :show="showSettings"
       @close="showSettings = false"
       @data-restored="() => { init(); initCategories() }"
+      @feeds-changed="() => { refresh(); refreshCategories() }"
     />
   </v-sheet>
 </template>

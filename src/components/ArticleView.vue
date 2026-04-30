@@ -42,7 +42,7 @@ const openInBrowser = () => {
 const renderContent = (): string => {
   if (!currentArticle.value) return ''
   const html = currentArticle.value.content || currentArticle.value.description || ''
-  return html
+  return html.replace(/<a\s/g, '<a target="_blank" rel="noopener noreferrer" ')
 }
 </script>
 

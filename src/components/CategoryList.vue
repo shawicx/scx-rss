@@ -39,11 +39,13 @@ const saving = ref(false)
 
 const isWarmInk = computed(() => vuetifyTheme.global.name.value === 'warmInk')
 
+const categoryNames = computed(() => props.categories.map(c => c.name))
+
 const getFeedsByCategory = (categoryName: string | null): Feed[] => {
   if (categoryName === null) {
     return props.feeds.filter(feed => !feed.category)
   }
-  return props.feeds.filter(feed => feed.category === categoryName)
+  return props.feeds.filter(feed => feed.category?.trim() === categoryName)
 }
 
 const handleSelectFeed = (feedId: number) => {
@@ -72,9 +74,12 @@ const handleAddFeed = async () => {
     return
   }
   adding.value = true
-  const success = await addFeed(newFeedUrl.value, newFeedCategory.value || undefined)
+  const success = await addFeed(newFeedUrl.value, newFeedCategory.value.trim() || undefined)
   adding.value = false
-  if (success) showAddDialog.value = false
+  if (success) {
+    showAddDialog.value = false
+    emit('feed-updated')
+  }
 }
 
 const openEditDialog = (feed: Feed) => {
@@ -229,12 +234,14 @@ const handleEditFeed = async () => {
             persistent-hint
             @keydown.enter="handleAddFeed"
           />
-          <v-text-field
+          <v-combobox
             v-model="newFeedCategory"
+            :items="categoryNames"
             label="分类（可选）"
-            placeholder="例如：技术、新闻"
+            placeholder="选择或输入新分类"
             density="compact"
             variant="outlined"
+            clearable
             @keydown.enter="handleAddFeed"
           />
         </v-card-text>
@@ -278,12 +285,14 @@ const handleEditFeed = async () => {
             class="mb-3"
             @keydown.enter="handleEditFeed"
           />
-          <v-text-field
+          <v-combobox
             v-model="editCategory"
+            :items="categoryNames"
             label="分类（可选）"
-            placeholder="例如：技术、新闻"
+            placeholder="选择或输入新分类"
             density="compact"
             variant="outlined"
+            clearable
             @keydown.enter="handleEditFeed"
           />
         </v-card-text>

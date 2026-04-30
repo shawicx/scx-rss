@@ -441,12 +441,12 @@ pub fn db_get_categories(app: &AppHandle) -> AppResult<Vec<Category>> {
     // 查询所有分类、每个分类的 Feed 数量和未读文章数
     let mut stmt = conn.prepare(
         "SELECT
-            COALESCE(f.category, '未分类') as category_name,
+            TRIM(COALESCE(f.category, '未分类')) as category_name,
             COUNT(DISTINCT f.id) as feed_count,
             COUNT(DISTINCT CASE WHEN a.is_read = 0 THEN a.id END) as unread_count
         FROM feeds f
         LEFT JOIN articles a ON f.id = a.feed_id
-        GROUP BY COALESCE(f.category, '未分类')
+        GROUP BY TRIM(COALESCE(f.category, '未分类'))
         ORDER BY category_name",
     )?;
 

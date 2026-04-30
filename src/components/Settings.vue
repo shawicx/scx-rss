@@ -14,6 +14,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'data-restored'): void
+  (e: 'feeds-changed'): void
 }>()
 
 const { exportOpml, importOpml } = useOpml()
@@ -48,6 +49,7 @@ const handleImport = async () => {
   try {
     await importOpml()
     await refresh()
+    emit('feeds-changed')
   } finally {
     isImporting.value = false
   }
