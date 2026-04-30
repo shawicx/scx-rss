@@ -47,6 +47,25 @@ pub async fn add_feed(
     Ok(feed)
 }
 
+/// 更新 Feed 信息
+#[tauri::command]
+pub async fn update_feed(
+    app: AppHandle,
+    feed_id: i64,
+    title: Option<String>,
+    url: Option<String>,
+    category: Option<String>,
+) -> Result<Feed, String> {
+    let update = crate::core::models::UpdateFeed {
+        feed_id,
+        title,
+        url,
+        category,
+    };
+
+    crate::core::database::db_update_feed(&app, &update).map_err(|e| e.to_string())
+}
+
 /// 拉取并更新单个 Feed
 #[tauri::command]
 pub async fn fetch_and_update_feed(app: AppHandle, feed_id: i64) -> Result<String, String> {

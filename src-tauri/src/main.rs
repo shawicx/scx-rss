@@ -39,6 +39,7 @@ fn main() {
             db::restore_database,
             // Feed 命令
             feed::add_feed,
+            feed::update_feed,
             feed::fetch_and_update_feed,
             feed::batch_refresh_feeds,
             feed::cancel_batch_refresh,

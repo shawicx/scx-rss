@@ -1,5 +1,5 @@
 use crate::core::error::AppResult;
-use crate::core::models::{Article, ArticleFilter, Category, Feed, NewArticle, NewFeed};
+use crate::core::models::{Article, ArticleFilter, Category, Feed, NewArticle, NewFeed, UpdateFeed};
 use chrono::Utc;
 use rusqlite::{Connection, params};
 use std::path::PathBuf;
@@ -345,6 +345,92 @@ pub fn db_update_feed_last_fetched(app: &AppHandle, feed_id: i64) -> AppResult<(
     )?;
 
     Ok(())
+}
+
+/// 更新 Feed 的可编辑字段（title, url, category）
+pub fn db_update_feed(app: &AppHandle, update: &UpdateFeed) -> AppResult<Feed> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let now = Utc::now().to_rfc3339();
+
+    let mut updates = Vec::new();
+    let mut params: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+
+    if let Some(ref title) = update.title {
+        updates.push("title = ?");
+        params.push(Box::new(title.clone()));
+    }
+
+    if let Some(ref url) = update.url {
+        updates.push("url = ?");
+        params.push(Box::new(url.clone()));
+    }
+
+    if let Some(ref category) = update.category {
+        updates.push("category = ?");
+        params.push(Box::new(category.clone()));
+    }
+
+    if updates.is_empty() {
+        return conn.query_row(
+            "SELECT id, url, title, description, icon_url, category, created_at, updated_at, last_fetched_at
+             FROM feeds WHERE id = ?1",
+            params![update.feed_id],
+            |row| {
+                Ok(Feed {
+                    id: row.get(0)?,
+                    url: row.get(1)?,
+                    title: row.get(2)?,
+                    description: row.get(3)?,
+                    icon_url: row.get(4)?,
+                    category: row.get(5)?,
+                    created_at: row.get::<_, String>(6)?.parse().unwrap(),
+                    updated_at: row.get::<_, String>(7)?.parse().unwrap(),
+                    last_fetched_at: row.get::<_, Option<String>>(8)?.map(|s| s.parse().unwrap()),
+                })
+            },
+        ).map_err(|e| e.into());
+    }
+
+    updates.push("updated_at = ?");
+    params.push(Box::new(now));
+
+    params.push(Box::new(update.feed_id));
+
+    let query = format!(
+        "UPDATE feeds SET {} WHERE id = ?",
+        updates.join(", ")
+    );
+
+    let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p.as_ref()).collect();
+    if let Err(e) = conn.execute(&query, param_refs.as_slice()) {
+        if e.to_string().contains("UNIQUE constraint failed") {
+            return Err(crate::core::error::AppError::ValidationError(
+                "该 URL 已被其他订阅源使用".to_string(),
+            ));
+        }
+        return Err(e.into());
+    }
+
+    conn.query_row(
+        "SELECT id, url, title, description, icon_url, category, created_at, updated_at, last_fetched_at
+         FROM feeds WHERE id = ?1",
+        params![update.feed_id],
+        |row| {
+            Ok(Feed {
+                id: row.get(0)?,
+                url: row.get(1)?,
+                title: row.get(2)?,
+                description: row.get(3)?,
+                icon_url: row.get(4)?,
+                category: row.get(5)?,
+                created_at: row.get::<_, String>(6)?.parse().unwrap(),
+                updated_at: row.get::<_, String>(7)?.parse().unwrap(),
+                last_fetched_at: row.get::<_, Option<String>>(8)?.map(|s| s.parse().unwrap()),
+            })
+        },
+    ).map_err(|e| e.into())
 }
 
 /// 获取所有分类及其未读计数

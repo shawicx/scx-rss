@@ -113,6 +113,7 @@ const handleFeedRefresh = async (feedId: number) => {
         @feed-selected="handleFeedSelected"
         @feed-delete="handleFeedDelete"
         @feed-refresh="handleFeedRefresh"
+        @feed-updated="refreshCategories"
       />
     </div>
 

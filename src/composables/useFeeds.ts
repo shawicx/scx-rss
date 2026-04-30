@@ -72,6 +72,37 @@ export function useFeeds() {
   }
 
   /**
+   * 更新 Feed 信息
+   * @param id - Feed ID
+   * @param updates - 要更新的字段
+   */
+  const updateFeed = async (
+    id: number,
+    updates: { title?: string; url?: string; category?: string }
+  ) => {
+    try {
+      loading.value = true
+      const updated = await invoke<Feed>('update_feed', {
+        feedId: id,
+        title: updates.title,
+        url: updates.url,
+        category: updates.category,
+      })
+      const index = feeds.value.findIndex((f) => f.id === id)
+      if (index !== -1) {
+        feeds.value[index] = updated
+      }
+      showSuccess('订阅源更新成功')
+      return true
+    } catch (error) {
+      showError(`更新订阅源失败: ${error}`)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * 刷新单个 Feed
    * @param id - Feed ID
    */
@@ -127,6 +158,7 @@ export function useFeeds() {
     listFeeds,
     refresh: listFeeds, // 别名，用于刷新 Feed 列表
     addFeed,
+    updateFeed,
     deleteFeed,
     refreshFeed,
     refreshAllFeeds,

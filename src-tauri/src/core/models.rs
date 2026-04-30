@@ -89,6 +89,15 @@ pub struct NewFeed {
     pub category: Option<String>,
 }
 
+/// 用于更新 Feed 的结构体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateFeed {
+    pub feed_id: i64,
+    pub title: Option<String>,
+    pub url: Option<String>,
+    pub category: Option<String>,
+}
+
 /// 用于创建新 Article 的结构体
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NewArticle {

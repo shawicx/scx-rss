@@ -39,7 +39,7 @@ const handleArticleSelected = (article: Article) => {
 
 <template>
   <v-app>
-    <div style="display: flex; height: 100vh; overflow: hidden;">
+    <div style="display: flex; height: 100vh; overflow: hidden">
       <!-- Sidebar -->
       <aside class="sidebar-panel">
         <Sidebar v-if="isInitialized" @feed-selected="handleFeedSelected" />
@@ -66,7 +66,7 @@ const handleArticleSelected = (article: Article) => {
 
 <style scoped>
 .sidebar-panel {
-  width: 272px;
+  width: 24rem;
   flex-shrink: 0;
   height: 100%;
 }

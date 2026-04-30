@@ -19,16 +19,23 @@ const emit = defineEmits<{
   (e: 'feed-selected', feedId: number): void
   (e: 'feed-delete', feedId: number): void
   (e: 'feed-refresh', feedId: number): void
+  (e: 'feed-updated'): void
 }>()
 
 const vuetifyTheme = useTheme()
-const { addFeed } = useFeeds()
+const { addFeed, updateFeed } = useFeeds()
 const { showError } = useToast()
 
 const showAddDialog = ref(false)
 const newFeedUrl = ref('')
 const newFeedCategory = ref('')
 const adding = ref(false)
+const showEditDialog = ref(false)
+const editingFeed = ref<Feed | null>(null)
+const editTitle = ref('')
+const editUrl = ref('')
+const editCategory = ref('')
+const saving = ref(false)
 
 const isWarmInk = computed(() => vuetifyTheme.global.name.value === 'warmInk')
 
@@ -68,6 +75,49 @@ const handleAddFeed = async () => {
   const success = await addFeed(newFeedUrl.value, newFeedCategory.value || undefined)
   adding.value = false
   if (success) showAddDialog.value = false
+}
+
+const openEditDialog = (feed: Feed) => {
+  editingFeed.value = feed
+  editTitle.value = feed.title
+  editUrl.value = feed.url
+  editCategory.value = feed.category || ''
+  showEditDialog.value = true
+}
+
+const handleEditFeed = async () => {
+  if (!editingFeed.value) return
+
+  // Validate URL if changed
+  if (editUrl.value !== editingFeed.value.url) {
+    const validation = validateFeedUrl(editUrl.value)
+    if (!validation.valid) {
+      showError(validation.error)
+      return
+    }
+  }
+
+  saving.value = true
+  const updates: { title?: string; url?: string; category?: string } = {}
+  if (editTitle.value !== editingFeed.value.title) updates.title = editTitle.value
+  if (editUrl.value !== editingFeed.value.url) updates.url = editUrl.value
+  if (editCategory.value.trim() !== (editingFeed.value.category || '')) {
+    const trimmed = editCategory.value.trim()
+    updates.category = trimmed || undefined
+  }
+
+  if (Object.keys(updates).length === 0) {
+    showEditDialog.value = false
+    saving.value = false
+    return
+  }
+
+  const success = await updateFeed(editingFeed.value.id, updates)
+  saving.value = false
+  if (success) {
+    showEditDialog.value = false
+    emit('feed-updated')
+  }
 }
 </script>
 
@@ -140,6 +190,9 @@ const handleAddFeed = async () => {
 
           <template v-slot:append>
             <div class="d-flex ga-0">
+              <v-btn icon variant="text" size="x-small" title="编辑" @click.stop="openEditDialog(feed)">
+                <v-icon size="14">mdi-pencil</v-icon>
+              </v-btn>
               <v-btn icon variant="text" size="x-small" title="刷新" @click.stop="handleRefreshFeed(feed.id)">
                 <v-icon size="14">mdi-refresh</v-icon>
               </v-btn>
@@ -198,6 +251,54 @@ const handleAddFeed = async () => {
             @click="handleAddFeed"
           >
             添加
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Edit Feed Dialog -->
+    <v-dialog v-model="showEditDialog" max-width="420">
+      <v-card>
+        <v-card-title class="text-body-1 font-weight-semibold">编辑订阅源</v-card-title>
+
+        <v-card-text>
+          <v-text-field
+            v-model="editTitle"
+            label="标题"
+            density="compact"
+            variant="outlined"
+            class="mb-3"
+            @keydown.enter="handleEditFeed"
+          />
+          <v-text-field
+            v-model="editUrl"
+            label="Feed URL"
+            density="compact"
+            variant="outlined"
+            class="mb-3"
+            @keydown.enter="handleEditFeed"
+          />
+          <v-text-field
+            v-model="editCategory"
+            label="分类（可选）"
+            placeholder="例如：技术、新闻"
+            density="compact"
+            variant="outlined"
+            @keydown.enter="handleEditFeed"
+          />
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="showEditDialog = false">取消</v-btn>
+          <v-btn
+            color="primary"
+            :loading="saving"
+            @click="handleEditFeed"
+          >
+            保存
           </v-btn>
         </v-card-actions>
       </v-card>
