@@ -1,6 +1,6 @@
 # 技术栈
 
-最后更新：2026-04-29
+最后更新：2026-05-03
 
 ## 目录
 
@@ -18,7 +18,7 @@
 | 语言（前端） | TypeScript | 5.6+ | 类型安全 |
 | 语言（后端） | Rust | 2021 edition | 高性能系统语言 |
 | 数据库 | SQLite | via rusqlite (bundled) | 本地嵌入式数据库 |
-| 样式方案 | UnoCSS | 0.65+ | 原子化 CSS，presetWind 预设 |
+| 样式方案 | Vuetify | 3.x | Material Design 组件库 |
 
 ## 前端依赖
 
@@ -29,6 +29,7 @@
 | 包名 | 版本 | 用途 |
 |------|------|------|
 | `vue` | ^3.5.0 | 响应式 UI 框架 |
+| `vuetify` | ^3.7.0 | Material Design 组件库 |
 | `@tauri-apps/api` | ^2.1.0 | Tauri IPC 调用（invoke、events） |
 | `@tauri-apps/plugin-dialog` | ^2.4.2 | 文件选择对话框 |
 | `@tauri-apps/plugin-fs` | ^2.4.4 | 文件系统读写 |
@@ -40,7 +41,7 @@
 |------|------|------|
 | `vite` | ^6.0.0 | 构建工具 |
 | `@vitejs/plugin-vue` | ^5.2.0 | Vue SFC 编译 |
-| `unocss` | ^0.65.0 | 原子化 CSS 引擎 |
+| `vite-plugin-vuetify` | ^2.0.0 | Vuetify 按需加载 |
 | `typescript` | ~5.6.0 | 类型检查 |
 | `vue-tsc` | ^2.1.0 | Vue 模板类型检查 |
 | `eslint` | ^9.15.0 | 代码检查 |
@@ -79,8 +80,8 @@
 
 | 工具 | 配置文件 | 说明 |
 |------|----------|------|
-| Vite | `vite.config.ts` | 前端构建，路径别名 `@/` |
-| UnoCSS | `unocss.config.ts` | 原子化 CSS 配置 |
+| Vite | `vite.config.ts` | 前端构建，路径别名 `@/`，Vuetify 插件 |
+| Vuetify | `src/plugins/vuetify.ts` | 主题与组件配置 |
 | TypeScript | `tsconfig.json` | 类型检查配置 |
 | ESLint | `eslint.config.js` | 代码质量检查 |
 | Prettier | `.prettierrc` | 代码格式化 |
@@ -92,6 +93,6 @@
 - `package.json`
 - `src-tauri/Cargo.toml`
 - `vite.config.ts`
-- `unocss.config.ts`
+- `src/plugins/vuetify.ts`
 - `tsconfig.json`
 - `eslint.config.js`

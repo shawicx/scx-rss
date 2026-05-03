@@ -1,6 +1,6 @@
 # 架构设计
 
-最后更新：2026-04-29
+最后更新：2026-05-03
 
 ## 目录
 
@@ -30,8 +30,9 @@
 │  │  │  Composables   │  │  │  │  Core Modules      │ │ │
 │  │  │  - useFeeds    │  │  │  │  - Network         │ │ │
 │  │  │  - useArticles │  │  │  │  - Parser          │ │ │
-│  │  │  - useOpml     │  │  │  │  - Database        │ │ │
-│  │  └────────────────┘  │  │  └────────────────────┘ │ │
+│  │  │  - useAutoRefresh│ │  │  │  - Database        │ │ │
+│  │  │  - useOpml     │  │  │  └────────────────────┘ │ │
+│  │  └────────────────┘  │  │                          │ │
 │  └──────────────────────┘  └──────────────────────────┘ │
 └────────────────────────────┼─────────────────────────────┘
                              │
@@ -65,6 +66,7 @@ scx-rss/
 │   │   ├── useArticles.ts      # 文章操作
 │   │   ├── useOpml.ts          # OPML 导入/导出
 │   │   ├── useCategories.ts    # 分类操作
+│   │   ├── useAutoRefresh.ts   # 自动刷新定时器
 │   │   └── useToast.ts         # 通知系统
 │   ├── types/                  # 类型定义
 │   │   ├── feed.ts
@@ -76,7 +78,7 @@ scx-rss/
 │   │   ├── validators.ts
 │   │   └── constants.ts
 │   ├── styles/
-│   │   └── sunset-theme.css    # 夕阳色主题
+│   │   └── theme.css           # 基础样式（Vuetify 处理组件样式）
 │   └── main.ts                 # 应用入口
 │
 ├── src-tauri/                  # Rust 后端
@@ -170,7 +172,8 @@ scx-rss/
 ```
 ArticleView.vue → useArticles.ts → useFeeds.ts → invoke()
 FeedList.vue    → useFeeds.ts → invoke()
-Settings.vue   → useOpml.ts → invoke()
+Settings.vue   → useOpml.ts + useAutoRefresh.ts → invoke()
+Sidebar.vue    → useFeeds.ts + useCategories.ts (监听 feeds-refreshed 事件刷新列表)
 App.vue        → useToast.ts (全局通知)
 ```
 

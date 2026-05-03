@@ -1,6 +1,6 @@
 # 前端模块
 
-最后更新：2026-04-29
+最后更新：2026-05-03
 
 ## 目录
 
@@ -77,6 +77,8 @@
 
 > `src/components/Settings.vue`
 
+- 主题切换（Material Light / Material Dark / Warm Ink）
+- 自动刷新设置（开关、间隔选择、上次刷新时间）
 - OPML 导入/导出
 - 数据库备份/恢复（带确认对话框）
 - 恢复后触发 `data-restored` 事件，由 Sidebar 重新加载数据
@@ -152,6 +154,20 @@ OPML 导入/导出：
 - `showInfo(message)` — 信息提示
 - `showWarning(message)` — 警告提示
 
+### useAutoRefresh.ts
+
+> `src/composables/useAutoRefresh.ts`
+
+自动刷新定时器管理：
+
+- `enabled` — 启用状态（ref，synced to localStorage）
+- `intervalMinutes` — 刷新间隔（ref，单位分钟）
+- `toggleAutoRefresh(value)` — 开关自动刷新
+- `setRefreshInterval(minutes)` — 设置刷新间隔
+- `formatLastRefreshed()` — 格式化上次刷新时间
+- 页面隐藏时暂停计时器，恢复时自动补刷
+- 刷新完成后通过 `window.dispatchEvent('feeds-refreshed')` 通知 Sidebar 更新列表
+
 ## 类型定义
 
 > `src/types/`
@@ -214,43 +230,25 @@ interface Article {
 
 ## 样式系统
 
-### 设计语言：暖墨（Warm Ink）
+### UI 框架：Vuetify 3
+
+> `src/plugins/vuetify.ts`
+
+使用 Vuetify 3 组件库，提供 Material Design 组件和三套主题：
+
+- **Material Light** — 标准浅色主题
+- **Material Dark** — 标准深色主题
+- **Warm Ink** — 自定义暖色阅读主题
+
+### 基础样式
 
 > `src/styles/theme.css`
 
-编辑式设计系统，深色侧边栏 + 暖纸色内容区，以阅读体验为核心。
-
-**配色方案：**
-
-| 角色 | 变量 | 用途 |
-|------|------|------|
-| 深色背景 | `--ink-dark` (#0f0e11) | 侧边栏 |
-| 深色浮层 | `--ink-dark-raised` | 侧边栏悬停/激活 |
-| 暖纸色 | `--ink-paper` (#f6f2ec) | 文章列表背景 |
-| 亮纸色 | `--ink-paper-bright` (#faf8f4) | 文章阅读器背景 |
-| 铜色强调 | `--ink-accent` (#c07a4a) | 按钮、选中态、链接 |
-| 正文色 | `--ink-text` (#1a1a1a) | 主要文字 |
-| 辅助文字 | `--ink-text-secondary` | 次要信息 |
-| 反色文字 | `--ink-text-inverse` | 侧边栏文字 |
-
-**字体：**
-- 标题：`'Playfair Display', Georgia, 'Noto Serif SC', serif`
-- 正文：`-apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif`
-
-**组件类：**
-- `.btn-ink` — 主按钮（铜色）
-- `.btn-ghost` — 幽灵按钮（浅色背景）
-- `.btn-ghost-dark` — 幽灵按钮（深色背景）
-- `.input-ink` — 输入框
-- `.modal-overlay` / `.modal-content` — 模态框
-- `.prose-ink` — 文章正文排版
-- `.badge-ink` — 未读数徽章
-
-### UnoCSS
-
-> `unocss.config.ts`
-
-使用 `presetWind`（Tailwind CSS 兼容）预设，自定义 `ink-*` 色值。
+最小化的全局样式，Vuetify 处理所有组件样式。保留：
+- 全局 reset
+- 滚动条样式
+- 工具类（`.line-clamp-2`）
+- 文章正文排版（`.prose-ink`）
 
 ### 关联文件
 
@@ -260,4 +258,4 @@ interface Article {
 - `src/types/*.ts`
 - `src/utils/*.ts`
 - `src/styles/theme.css`
-- `unocss.config.ts`
+- `src/plugins/vuetify.ts`

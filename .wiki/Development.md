@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-04-29
+最后更新：2026-05-03
 
 ## 目录
 
@@ -25,7 +25,7 @@
 
 - Vue - Official（Vue 语言支持）
 - rust-analyzer（Rust 语言支持）
-- UnoCSS（原子化 CSS 提示）
+- Vuetify（组件智能提示）
 
 ## 快速开始
 
@@ -122,11 +122,11 @@ resolve: {
 - 模块解析：Bundler
 - 严格模式启用
 
-### UnoCSS 配置
+### Vuetify 配置
 
-> `unocss.config.ts`
+> `src/plugins/vuetify.ts`
 
-使用 `presetWind`（Tailwind CSS 兼容预设）。
+配置三套主题（Material Light / Material Dark / Warm Ink），组件按需加载。
 
 ## 调试技巧
 
@@ -150,15 +150,15 @@ resolve: {
 
 > 详细任务清单见 [TODO.md](../TODO.md)
 
-当前阶段：**阶段 3 — 数据管理**
+当前阶段：**阶段 4 — 高级功能**
 
 | 阶段 | 名称 | 进度 |
 |------|------|------|
 | 0 | 环境准备 | 100% |
 | 1 | 核心功能 (MVP) | ~95%（待集成测试） |
-| 2 | 用户体验优化 | ~50%（筛选/排序/快捷键待开发） |
-| 3 | 数据管理 | ~50%（备份恢复待开发） |
-| 4 | 高级功能 | 0% |
+| 2 | 用户体验优化 | ~50%（筛选/排序待开发） |
+| 3 | 数据管理 | 100% |
+| 4 | 高级功能 | ~20%（自动刷新已完成） |
 
 ### 已完成
 
@@ -168,17 +168,18 @@ resolve: {
 - 文章阅读与状态管理
 - 分类管理
 - OPML 导入/导出
+- 数据备份/恢复
 - Toast 通知系统
 - 夕阳色主题
+- 自动刷新（定时静默拉取）
 
 ### 待开发
 
 - 文章筛选/排序
 - 键盘快捷键
-- 数据备份/恢复
 - 全文搜索（FTS5）
-- 自动刷新调度
-- 主题切换
+- 全文提取（readability）
+- 订阅源发现
 
 ### 关联文件
 
@@ -186,7 +187,6 @@ resolve: {
 - `src-tauri/Cargo.toml`
 - `vite.config.ts`
 - `tsconfig.json`
-- `unocss.config.ts`
 - `eslint.config.js`
 - `.prettierrc`
 - `TODO.md`
