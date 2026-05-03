@@ -5,7 +5,7 @@ import { save, open } from '@tauri-apps/plugin-dialog'
 import { useOpml } from '@/composables/useOpml'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
-import { useTheme, type ThemeName } from '@/composables/useTheme'
+import { useTheme, type ThemePreference } from '@/composables/useTheme'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
 import { AUTO_REFRESH_OPTIONS } from '@/utils/constants'
 
@@ -22,7 +22,7 @@ const emit = defineEmits<{
 const { exportOpml, importOpml } = useOpml()
 const { refresh } = useFeeds()
 const { showSuccess, showError, showInfo } = useToast()
-const { currentTheme, setTheme } = useTheme()
+const { preference, setPreference } = useTheme()
 const {
   enabled: autoRefreshEnabled,
   intervalMinutes,
@@ -37,9 +37,9 @@ const isBackingUp = ref(false)
 const isRestoring = ref(false)
 
 const themeOptions = [
-  { title: 'Material Light', value: 'materialLight' as ThemeName },
-  { title: 'Material Dark', value: 'materialDark' as ThemeName },
-  { title: 'Warm Ink', value: 'warmInk' as ThemeName },
+  { title: '浅色', value: 'light' as ThemePreference },
+  { title: '深色', value: 'dark' as ThemePreference },
+  { title: '跟随系统', value: 'system' as ThemePreference },
 ]
 
 const handleExport = async () => {
@@ -133,14 +133,14 @@ const close = () => {
         <div class="mb-5">
           <h3 class="text-caption font-weight-medium mb-2">主题</h3>
           <v-select
-            :model-value="currentTheme"
+            :model-value="preference"
             :items="themeOptions"
             item-title="title"
             item-value="value"
             density="compact"
             variant="outlined"
             hide-details
-            @update:model-value="setTheme"
+            @update:model-value="setPreference"
           />
         </div>
 

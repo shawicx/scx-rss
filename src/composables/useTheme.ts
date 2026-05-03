@@ -1,32 +1,56 @@
-import { ref, watch } from 'vue'
+import { ref, watch, onScopeDispose } from 'vue'
 import { useTheme as useVuetifyTheme } from 'vuetify'
 
-export type ThemeName = 'materialLight' | 'materialDark' | 'warmInk'
+export type ThemePreference = 'light' | 'dark' | 'system'
+type ResolvedTheme = 'materialLight' | 'materialDark'
 
 const THEME_KEY = 'scx-rss-theme'
 
-const currentTheme = ref<ThemeName>(
-  (localStorage.getItem(THEME_KEY) as ThemeName) || 'materialLight'
+function migrateLegacy(value: string | null): ThemePreference {
+  if (value === 'dark' || value === 'light' || value === 'system') return value
+  if (value === 'materialDark') return 'dark'
+  return 'light'
+}
+
+const preference = ref<ThemePreference>(
+  migrateLegacy(localStorage.getItem(THEME_KEY))
 )
+
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+function resolve(preference: ThemePreference): ResolvedTheme {
+  if (preference === 'dark') return 'materialDark'
+  if (preference === 'light') return 'materialLight'
+  return mediaQuery.matches ? 'materialDark' : 'materialLight'
+}
 
 export function useTheme() {
   const theme = useVuetifyTheme()
 
-  function setTheme(name: ThemeName) {
-    currentTheme.value = name
-    theme.global.name.value = name
-    localStorage.setItem(THEME_KEY, name)
+  function setPreference(pref: ThemePreference) {
+    preference.value = pref
+    localStorage.setItem(THEME_KEY, pref)
   }
 
-  function initTheme() {
-    theme.global.name.value = currentTheme.value
+  function applyTheme(resolved: ResolvedTheme) {
+    theme.global.name.value = resolved
   }
 
-  watch(currentTheme, (val) => {
-    if (theme.global.name.value !== val) {
-      theme.global.name.value = val
+  function onMediaChange() {
+    if (preference.value === 'system') {
+      applyTheme(resolve('system'))
     }
+  }
+
+  mediaQuery.addEventListener('change', onMediaChange)
+  onScopeDispose(() => mediaQuery.removeEventListener('change', onMediaChange))
+
+  watch(preference, (pref) => {
+    applyTheme(resolve(pref))
   })
 
-  return { currentTheme, setTheme, initTheme }
+  // Apply on init
+  applyTheme(resolve(preference.value))
+
+  return { preference, setPreference }
 }

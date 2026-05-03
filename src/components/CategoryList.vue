@@ -4,7 +4,6 @@ import type { Category, Feed } from '@/types'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
 import { validateFeedUrl } from '@/utils/validators'
-import { useTheme } from 'vuetify'
 
 interface Props {
   categories: Category[]
@@ -22,7 +21,6 @@ const emit = defineEmits<{
   (e: 'feed-updated'): void
 }>()
 
-const vuetifyTheme = useTheme()
 const { addFeed, updateFeed } = useFeeds()
 const { showError } = useToast()
 
@@ -36,8 +34,6 @@ const editTitle = ref('')
 const editUrl = ref('')
 const editCategory = ref('')
 const saving = ref(false)
-
-const isWarmInk = computed(() => vuetifyTheme.global.name.value === 'warmInk')
 
 const categoryNames = computed(() => props.categories.map(c => c.name))
 
@@ -135,7 +131,6 @@ const handleEditFeed = async () => {
       block
       size="large"
       class="mb-1"
-      :class="{ 'text-warm-ink': isWarmInk }"
       @click="openAddDialog"
     >
       <v-icon start size="16">mdi-plus</v-icon>
@@ -333,8 +328,5 @@ const handleEditFeed = async () => {
 }
 .feed-item:hover :deep(.v-list-item__append) {
   opacity: 1;
-}
-.text-warm-ink {
-  color: #8a8590 !important;
 }
 </style>

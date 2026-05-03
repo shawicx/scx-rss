@@ -10,14 +10,13 @@ import { useToast } from '@/composables/useToast'
 import { useTheme } from '@/composables/useTheme'
 
 const { showError } = useToast()
-const { initTheme } = useTheme()
+useTheme()
 
 const currentFeedId = ref<number | undefined>(undefined)
 const currentArticle = ref<Article | undefined>(undefined)
 const isInitialized = ref(false)
 
 onMounted(async () => {
-  initTheme()
   try {
     await invoke('init_db')
     isInitialized.value = true

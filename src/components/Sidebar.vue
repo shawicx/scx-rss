@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import CategoryList from './CategoryList.vue'
 import RefreshProgress from './RefreshProgress.vue'
 import Settings from './Settings.vue'
@@ -7,13 +7,10 @@ import { useFeeds } from '@/composables/useFeeds'
 import { useCategories } from '@/composables/useCategories'
 import { useToast } from '@/composables/useToast'
 import { invoke } from '@tauri-apps/api/core'
-import { useTheme } from 'vuetify'
-
 const emit = defineEmits<{
   (e: 'feed-selected', feedId: number): void
 }>()
 
-const vuetifyTheme = useTheme()
 const { feeds, loading, init, refresh, deleteFeed, refreshFeed } = useFeeds()
 const { categories, init: initCategories, refresh: refreshCategories } = useCategories()
 const { showSuccess, showError } = useToast()
@@ -22,8 +19,6 @@ const showRefreshProgress = ref(false)
 const isRefreshing = ref(false)
 const showSettings = ref(false)
 const selectedFeedId = ref<number | undefined>(undefined)
-
-const isWarmInk = computed(() => vuetifyTheme.global.name.value === 'warmInk')
 
 onMounted(async () => {
   await init()
@@ -90,7 +85,6 @@ const handleFeedRefresh = async (feedId: number) => {
 <template>
   <v-sheet
     color="surface-variant"
-    :class="{ 'sidebar-warm-ink': isWarmInk }"
     class="d-flex flex-column h-100 overflow-hidden"
   >
     <!-- Header -->
@@ -167,29 +161,6 @@ const handleFeedRefresh = async (feedId: number) => {
 </template>
 
 <style scoped>
-.sidebar-warm-ink {
-  background: #1c1a1f !important;
-  color: #d4d0cb !important;
-}
-.sidebar-warm-ink :deep(.v-btn) {
-  color: #8a8590;
-}
-.sidebar-warm-ink :deep(.v-btn:hover) {
-  color: #d4d0cb;
-}
-.sidebar-warm-ink :deep(.v-btn--variant-text:hover > .v-btn__overlay) {
-  background: #302e38;
-}
-.sidebar-warm-ink :deep(.text-h6) {
-  color: #d4d0cb;
-}
-.sidebar-warm-ink :deep(.text-body-2) {
-  color: #8a8590;
-}
-.sidebar-warm-ink :deep(.v-divider) {
-  border-color: #302e38;
-}
-
 .flex-1-1 {
   flex: 1 1 0;
   min-height: 0;

@@ -42,31 +42,6 @@ const materialDark = {
   },
 }
 
-const warmInk = {
-  dark: false,
-  colors: {
-    background: '#faf6f0',
-    surface: '#f6f2ec',
-    'surface-variant': '#ede9e2',
-    'on-surface-variant': '#6b5a4e',
-    primary: '#c07a4a',
-    'primary-darken-1': '#a86a3e',
-    secondary: '#4a7c59',
-    'secondary-darken-1': '#3d6a4a',
-    accent: '#c07a4a',
-    error: '#b84040',
-    info: '#5a8cb8',
-    success: '#4a7c59',
-    warning: '#a67c2e',
-    'ink-dark': '#0f0e11',
-    'ink-dark-raised': '#1a181d',
-    'ink-dark-hover': '#24222a',
-    'ink-border': '#e5e0d8',
-    'ink-border-light': '#ede9e2',
-    'ink-accent-light': '#f5e8dc',
-  },
-}
-
 export default createVuetify({
   components,
   directives,
@@ -75,7 +50,6 @@ export default createVuetify({
     themes: {
       materialLight,
       materialDark,
-      warmInk,
     },
   },
   defaults: {
