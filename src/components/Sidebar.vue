@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import CategoryList from './CategoryList.vue'
 import RefreshProgress from './RefreshProgress.vue'
 import Settings from './Settings.vue'
@@ -28,7 +28,17 @@ const isWarmInk = computed(() => vuetifyTheme.global.name.value === 'warmInk')
 onMounted(async () => {
   await init()
   await initCategories()
+  window.addEventListener('feeds-refreshed', onAutoRefreshComplete)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('feeds-refreshed', onAutoRefreshComplete)
+})
+
+const onAutoRefreshComplete = () => {
+  refresh()
+  refreshCategories()
+}
 
 const startBatchRefresh = async () => {
   if (isRefreshing.value || feeds.value.length === 0) return

@@ -52,6 +52,8 @@ export const STORAGE_KEYS = {
   SIDEBAR_WIDTH: 'sidebar-width',
   /** 主题偏好 */
   THEME: 'theme-preference',
+  /** 自动刷新开关 */
+  AUTO_REFRESH_ENABLED: 'auto-refresh-enabled',
   /** 自动刷新间隔 */
   AUTO_REFRESH_INTERVAL: 'auto-refresh-interval',
   /** 最后刷新时间 */
@@ -67,6 +69,15 @@ export const THEMES = {
   /** 跟随系统 */
   SYSTEM: 'system'
 } as const
+
+/** 自动刷新间隔选项（分钟） */
+export const AUTO_REFRESH_OPTIONS = [
+  { title: '每 15 分钟', value: 15 },
+  { title: '每 30 分钟', value: 30 },
+  { title: '每 1 小时', value: 60 },
+  { title: '每 2 小时', value: 120 },
+  { title: '每 4 小时', value: 240 }
+] as const
 
 /** 文章筛选类型 */
 export const ARTICLE_FILTERS = {

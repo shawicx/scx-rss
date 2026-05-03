@@ -6,6 +6,8 @@ import { useOpml } from '@/composables/useOpml'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
 import { useTheme, type ThemeName } from '@/composables/useTheme'
+import { useAutoRefresh } from '@/composables/useAutoRefresh'
+import { AUTO_REFRESH_OPTIONS } from '@/utils/constants'
 
 defineProps<{
   show: boolean
@@ -21,6 +23,13 @@ const { exportOpml, importOpml } = useOpml()
 const { refresh } = useFeeds()
 const { showSuccess, showError, showInfo } = useToast()
 const { currentTheme, setTheme } = useTheme()
+const {
+  enabled: autoRefreshEnabled,
+  intervalMinutes,
+  toggleAutoRefresh,
+  setRefreshInterval,
+  formatLastRefreshed,
+} = useAutoRefresh()
 
 const isExporting = ref(false)
 const isImporting = ref(false)
@@ -109,7 +118,7 @@ const close = () => {
 </script>
 
 <template>
-  <v-dialog :model-value="show" max-width="420" @click:outside="close">
+  <v-dialog :model-value="show" max-width="36rem" @click:outside="close">
     <v-card>
       <!-- Header -->
       <v-card-title class="d-flex align-center justify-between pa-5 pb-3">
@@ -133,6 +142,41 @@ const close = () => {
             hide-details
             @update:model-value="setTheme"
           />
+        </div>
+
+        <!-- Auto-Refresh -->
+        <div class="mb-5">
+          <h3 class="text-caption font-weight-medium mb-2">自动刷新</h3>
+          <p class="text-caption text-medium-emphasis mb-3">
+            定时自动拉取所有订阅源的最新文章，仅在发现新内容时通知。
+          </p>
+          <div class="d-flex align-center justify-between mb-2">
+            <span class="text-body-2">启用自动刷新</span>
+            <v-switch
+              :model-value="autoRefreshEnabled"
+              color="primary"
+              density="compact"
+              hide-details
+              @update:model-value="toggleAutoRefresh"
+            />
+          </div>
+          <template v-if="autoRefreshEnabled">
+            <v-select
+              :model-value="intervalMinutes"
+              :items="[...AUTO_REFRESH_OPTIONS]"
+              item-title="title"
+              item-value="value"
+              density="compact"
+              variant="outlined"
+              hide-details
+              label="刷新间隔"
+              @update:model-value="setRefreshInterval"
+            />
+            <p class="text-caption text-medium-emphasis mt-2">
+              <v-icon size="14" class="mr-1">mdi-clock-outline</v-icon>
+              上次刷新：{{ formatLastRefreshed() }}
+            </p>
+          </template>
         </div>
 
         <!-- OPML Import/Export -->
