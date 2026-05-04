@@ -50,6 +50,8 @@ export const TOAST_DURATION = {
 export const STORAGE_KEYS = {
   /** 侧边栏宽度 */
   SIDEBAR_WIDTH: 'sidebar-width',
+  /** 文章列表宽度 */
+  ARTICLE_LIST_WIDTH: 'article-list-width',
   /** 主题偏好 */
   THEME: 'theme-preference',
   /** 自动刷新开关 */

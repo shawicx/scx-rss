@@ -59,6 +59,10 @@ Response ← composable ← invoke() result ← Rust command ← core module ←
 
 Batch refresh uses Tauri Events to push real-time progress to `RefreshProgress.vue`.
 
+## Mandatory Rules
+
+- **禁止擅自提交代码**: 未经用户明确指示，不得执行 `git commit`。即使计划中包含提交步骤，也必须先获得用户确认。
+
 ## Key Conventions
 
 - **Git commits**: Conventional Commits (`feat:`, `fix:`, `refactor:`, etc.)
