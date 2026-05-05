@@ -30,12 +30,13 @@ const handleMarkAsUnread = async () => {
 const handleToggleStar = async () => {
   if (currentArticle.value) {
     await toggleStar(currentArticle.value.id)
+    currentArticle.value.is_starred = !currentArticle.value.is_starred
   }
 }
 
 const openInBrowser = () => {
   if (currentArticle.value) {
-    window.open(currentArticle.value.link, '_blank')
+    open(currentArticle.value.link)
   }
 }
 

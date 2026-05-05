@@ -15,8 +15,18 @@ const emit = defineEmits<{
   (e: 'article-selected', article: Article): void
 }>()
 
-const { articles, loading, unreadCount, starredCount, loadArticlesByFeed, toggleRead, toggleStar } =
-  useArticles()
+const {
+  articles,
+  loading,
+  unreadCount,
+  starredCount,
+  loadArticlesByFeed,
+  toggleRead,
+  toggleStar,
+  showUnreadOnly,
+  showStarredOnly,
+  showAll,
+} = useArticles()
 
 const filterMode = ref<'all' | 'unread' | 'starred'>('all')
 const selectedArticleId = ref<number | undefined>(undefined)
@@ -55,11 +65,11 @@ const handleToggleStar = async (articleId: number, event: Event) => {
 const setFilterMode = async (mode: 'all' | 'unread' | 'starred') => {
   filterMode.value = mode
   if (mode === 'unread') {
-    await useArticles().showUnreadOnly()
+    await showUnreadOnly()
   } else if (mode === 'starred') {
-    await useArticles().showStarredOnly()
+    await showStarredOnly()
   } else {
-    await useArticles().showAll()
+    await showAll()
   }
 }
 
