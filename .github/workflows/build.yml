@@ -59,9 +59,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__
-          releaseName: 'SCX RSS Reader v__VERSION__'
+          tagName: ${{ github.ref_name }}
+          releaseName: 'SCX RSS Reader ${{ github.ref_name }}'
           releaseBody: 'See the assets to download and install.'
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
