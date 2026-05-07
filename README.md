@@ -2,6 +2,16 @@
 
 基于 Tauri v2 (Rust) + Vue 3 + Vuetify 3 的本地优先桌面 RSS 阅读器。单用户，无需服务端。
 
+## 预览
+
+![总览](docs/assets/CleanShot_Overview.png)
+
+
+![添加订阅](docs/assets/CleanShot_New.png)
+
+
+![设置](docs/assets/CleanShot_Setting.png)
+
 ## 功能
 
 - RSS/Atom 订阅源拉取与解析

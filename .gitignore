@@ -29,4 +29,4 @@ src-tauri/Cargo.lock
 
 openspec/*
 .superpowers/
-docs/
+docs/superpowers
