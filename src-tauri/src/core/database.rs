@@ -9,7 +9,7 @@ use tauri::{AppHandle, Manager};
 pub fn get_db_path(app: &AppHandle) -> PathBuf {
     app.path()
         .app_data_dir()
-        .expect("Failed to get app data dir")
+        .expect("获取应用数据目录失败")
         .join("scx_rss.db")
 }
 

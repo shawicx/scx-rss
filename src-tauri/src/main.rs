@@ -23,7 +23,7 @@ fn main() {
             // 初始化数据库
             let app_handle = app.handle().clone();
             tauri::async_runtime::block_on(async {
-                db::init_db(app_handle).await.expect("Failed to initialize database");
+                db::init_db(app_handle).await.expect("数据库初始化失败");
             });
             Ok(())
         })
@@ -47,5 +47,5 @@ fn main() {
             feed::import_opml,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("Tauri 应用运行错误");
 }

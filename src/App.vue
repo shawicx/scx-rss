@@ -38,7 +38,7 @@ onMounted(async () => {
     await invoke('init_db')
     isInitialized.value = true
   } catch (error) {
-    console.error('Failed to initialize database:', error)
+    console.error('数据库初始化失败:', error)
     showError(`数据库初始化失败: ${error}`)
   }
 })

@@ -71,7 +71,7 @@ fn try_parse_with_encoding(content: &[u8]) -> AppResult<feed_rs::model::Feed> {
     }
 
     Err(AppError::ParseError(
-        "Failed to parse feed with any supported encoding".to_string(),
+        "无法以任何支持的编码解析订阅源".to_string(),
     ))
 }
 

@@ -242,7 +242,7 @@ const handleEditFeed = async () => {
         <v-card-text>
           <v-text-field
             v-model="newFeedUrl"
-            label="Feed URL"
+            label="订阅源 URL"
             placeholder="https://example.com/feed.xml"
             density="compact"
             variant="outlined"
@@ -291,7 +291,7 @@ const handleEditFeed = async () => {
           />
           <v-text-field
             v-model="editUrl"
-            label="Feed URL"
+            label="订阅源 URL"
             density="compact"
             variant="outlined"
             class="mb-3"

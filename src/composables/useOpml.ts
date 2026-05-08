@@ -22,28 +22,28 @@ export function useOpml() {
         defaultPath: `scx-rss-feeds-${new Date().toISOString().split('T')[0]}.opml`,
         filters: [
           {
-            name: 'OPML Files',
+            name: 'OPML 文件',
             extensions: ['opml', 'xml']
           },
           {
-            name: 'All Files',
+            name: '所有文件',
             extensions: ['*']
           }
         ]
       })
 
       if (!filePath) {
-        showInfo('Export cancelled')
+        showInfo('导出已取消')
         return
       }
 
       // 3. 写入文件
       await writeTextFile(filePath, opmlXml)
 
-      showSuccess(`OPML exported successfully to ${filePath}`)
+      showSuccess(`OPML 已成功导出到 ${filePath}`)
     } catch (error) {
-      console.error('Failed to export OPML:', error)
-      showError(`Failed to export OPML: ${error}`)
+      console.error('OPML 导出失败:', error)
+      showError(`OPML 导出失败: ${error}`)
     }
   }
 
@@ -60,18 +60,18 @@ export function useOpml() {
         multiple: false,
         filters: [
           {
-            name: 'OPML Files',
+            name: 'OPML 文件',
             extensions: ['opml', 'xml']
           },
           {
-            name: 'All Files',
+            name: '所有文件',
             extensions: ['*']
           }
         ]
       })
 
       if (!selected || typeof selected !== 'string') {
-        showInfo('Import cancelled')
+        showInfo('导入已取消')
         return
       }
 
@@ -84,8 +84,8 @@ export function useOpml() {
       // 4. 显示结果
       showSuccess(result)
     } catch (error) {
-      console.error('Failed to import OPML:', error)
-      showError(`Failed to import OPML: ${error}`)
+      console.error('OPML 导入失败:', error)
+      showError(`OPML 导入失败: ${error}`)
     }
   }
 

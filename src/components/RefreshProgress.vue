@@ -41,7 +41,7 @@ const cancelRefresh = async () => {
   try {
     await invoke('cancel_batch_refresh')
   } catch (error) {
-    console.error('Failed to cancel refresh:', error)
+    console.error('取消刷新失败:', error)
     showError(`取消刷新失败: ${error}`)
     isCancelling.value = false
   }

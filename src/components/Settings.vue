@@ -72,7 +72,7 @@ const handleBackup = async () => {
     const defaultName = `scx-rss-backup-${timestamp}.db`
     const filePath = await save({
       defaultPath: defaultName,
-      filters: [{ name: 'SQLite Database', extensions: ['db'] }],
+      filters: [{ name: 'SQLite 数据库', extensions: ['db'] }],
     })
     if (!filePath) {
       showInfo('备份已取消')
@@ -93,7 +93,7 @@ const handleRestore = async () => {
   try {
     const selected = await open({
       multiple: false,
-      filters: [{ name: 'SQLite Database', extensions: ['db'] }],
+      filters: [{ name: 'SQLite 数据库', extensions: ['db'] }],
     })
     if (!selected || typeof selected !== 'string') {
       showInfo('恢复已取消')

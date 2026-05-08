@@ -22,7 +22,7 @@ pub async fn add_feed(
 
     // 2. 解析 Feed
     let (mut new_feed, articles) = parser::parse_feed(&url, &content)
-        .map_err(|e| format!("Failed to parse feed: {}", e))?;
+        .map_err(|e| format!("订阅源解析失败: {}", e))?;
 
     // 3. 设置分类
     new_feed.category = category;
@@ -76,15 +76,15 @@ pub async fn fetch_and_update_feed(app: AppHandle, feed_id: i64) -> Result<Strin
     let feed = feeds
         .iter()
         .find(|f| f.id == feed_id)
-        .ok_or_else(|| format!("Feed with id {} not found", feed_id))?;
+        .ok_or_else(|| format!("未找到 id 为 {} 的订阅源", feed_id))?;
 
     // 2. 获取最新内容
     let content =
-        network::fetch_feed(&feed.url).await.map_err(|e| format!("Network error: {}", e))?;
+        network::fetch_feed(&feed.url).await.map_err(|e| format!("网络错误: {}", e))?;
 
     // 3. 解析 Feed
     let (_parsed_feed, articles) = parser::parse_feed(&feed.url, &content)
-        .map_err(|e| format!("Parse error: {}", e))?;
+        .map_err(|e| format!("解析错误: {}", e))?;
 
     // 4. 插入新文章
     let articles: Vec<NewArticle> = articles

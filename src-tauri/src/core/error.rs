@@ -6,27 +6,27 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum AppError {
     /// 网络请求错误
-    #[error("Network error: {0}")]
+    #[error("网络错误: {0}")]
     NetworkError(#[from] reqwest::Error),
 
     /// RSS/Atom 解析错误
-    #[error("Feed parse error: {0}")]
+    #[error("订阅源解析错误: {0}")]
     ParseError(String),
 
     /// 数据库操作错误
-    #[error("Database error: {0}")]
+    #[error("数据库错误: {0}")]
     DatabaseError(#[from] rusqlite::Error),
 
     /// 数据验证错误（如无效的 URL）
-    #[error("Validation error: {0}")]
+    #[error("验证错误: {0}")]
     ValidationError(String),
 
     /// JSON 序列化/反序列化错误
-    #[error("JSON error: {0}")]
+    #[error("JSON 错误: {0}")]
     JsonError(#[from] serde_json::Error),
 
     /// IO 错误
-    #[error("IO error: {0}")]
+    #[error("IO 错误: {0}")]
     IoError(#[from] std::io::Error),
 }
 
@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn test_error_display() {
         let err = AppError::ParseError("Invalid RSS format".to_string());
-        assert_eq!(err.to_string(), "Feed parse error: Invalid RSS format");
+        assert_eq!(err.to_string(), "订阅源解析错误: Invalid RSS format");
     }
 
     #[test]

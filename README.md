@@ -12,6 +12,8 @@
 
 ![设置](docs/assets/CleanShot_Setting.png)
 
+![深色模式](docs/assets/CleanShot_Dark.png)
+
 ## 功能
 
 - RSS/Atom 订阅源拉取与解析
