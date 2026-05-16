@@ -1,173 +1,133 @@
 # 后端模块
 
-最后更新：2026-04-29
+## Commands 层
 
-## 目录
+### db.rs (8 个命令)
+**文件**: `src-tauri/src/commands/db.rs`
 
-- [入口 (main.rs)](#入口-mainrs)
-- [命令层 (commands/)](#命令层-commands)
-- [核心模块 (core/)](#核心模块-core)
-- [错误处理](#错误处理)
+**核心命令**:
+- `init_db()` - 初始化数据库表结构
+- `get_all_feeds()` - 获取所有 Feeds
+- `get_articles(filter)` - 查询文章（支持分页/筛选）
+- `update_article(id, is_read, is_starred)` - 更新文章状态
+- `delete_feed(id)` - 删除 Feed（级联删除文章）
+- `get_categories()` - 获取分类及未读计数
 
-## 入口 (main.rs)
+**风险**:
+- `get_articles()` 无 limit 时可能返回大量数据
+- `delete_feed()` 级联删除不可逆
 
-> `src-tauri/src/main.rs`
+### feed.rs (6 个命令)
+**文件**: `src-tauri/src/commands/feed.rs`
 
-### 启动流程
+**核心命令**:
+- `add_feed(url, category)` - 添加 Feed
+- `fetch_and_update_feed(id)` - 单个 Feed 刷新
+- `batch_refresh_feeds()` - 批量刷新（带事件推送）
+- `cancel_batch_refresh()` - 取消刷新
+- `export_opml()` - 导出 OPML
+- `import_opml(content)` - 导入 OPML
 
-1. 初始化 `tracing` 日志（默认 INFO 级别）
-2. 注册 Tauri 插件：`shell`、`dialog`、`fs`
-3. 在 `setup` 中调用 `db::init_db()` 初始化数据库
-4. 注册所有 IPC 命令到 `invoke_handler`
+**风险**:
+- `batch_refresh_feeds()` 长时间运行，需要取消机制
+- `import_opml()` 可能插入大量数据
 
-### 注册的命令
+## Core 层
 
-| 命令 | 模块 | 说明 |
-|------|------|------|
-| `init_db` | db | 初始化数据库（建表、索引） |
-| `get_all_feeds` | db | 获取所有 Feed |
-| `get_articles` | db | 查询文章（支持筛选） |
-| `update_article` | db | 更新文章状态（已读/收藏） |
-| `delete_feed` | db | 删除 Feed 及关联文章 |
-| `get_categories` | db | 获取分类列表 |
-| `add_feed` | feed | 添加新 Feed |
-| `fetch_and_update_feed` | feed | 拉取并更新单个 Feed |
-| `batch_refresh_feeds` | feed | 批量刷新所有 Feed |
-| `cancel_batch_refresh` | feed | 取消批量刷新 |
-| `export_opml` | feed | 导出 OPML |
-| `import_opml` | feed | 导入 OPML |
-| `backup_database` | db | 备份数据库文件 |
-| `restore_database` | db | 从备份恢复数据库 |
+### database.rs
+**文件**: `src-tauri/src/core/database.rs`
 
-## 命令层 (commands/)
+**职责**: SQLite CRUD 操作
 
-> `src-tauri/src/commands/`
+**关键函数**:
+- `db_init()` - 创建 3 个表（feeds, articles, fetch_logs）
+- `db_insert_articles()` - 批量插入文章（使用 `INSERT OR IGNORE`）
+- `db_query_articles()` - 复杂查询（分页、筛选、排序）
 
-### db.rs — 数据库命令
+**风险**:
+- IO 操作，可能阻塞（但 Tauri 自动异步化）
+- 大量数据插入时性能问题
 
-> `src-tauri/src/commands/db.rs`
+### network.rs
+**文件**: `src-tauri/src/core/network.rs`
 
-| 命令 | 参数 | 返回值 | 说明 |
-|------|------|--------|------|
-| `init_db` | app_handle | `()` | 建表、创建索引 |
-| `get_all_feeds` | app_handle | `Vec<Feed>` | 返回所有订阅源 |
-| `get_articles` | app_handle, feed_id?, filter? | `Vec<Article>` | 条件查询文章 |
-| `update_article` | app_handle, id, is_read?, is_starred? | `()` | 更新文章状态 |
-| `delete_feed` | app_handle, id | `()` | CASCADE 删除 Feed |
-| `get_categories` | app_handle | `Vec<Category>` | 获取分类列表 |
-| `backup_database` | app_handle, backup_path | `String` | 备份数据库到指定路径 |
-| `restore_database` | app_handle, backup_path | `String` | 从备份文件恢复数据库 |
+**职责**: HTTP 客户端
 
-### feed.rs — Feed/OPML 命令
+**配置**:
+- 超时: 15 秒
+- 重试: 3 次（指数退避）
+- 并发: 最多 3 个
 
-> `src-tauri/src/commands/feed.rs`
+**风险**:
+- 网络请求可能失败（需要重试机制）
+- 恶意 URL 可能导致安全问题（已验证 URL 格式）
 
-| 命令 | 参数 | 返回值 | 说明 |
-|------|------|--------|------|
-| `add_feed` | app_handle, url, category? | `Feed` | 添加并首次拉取 |
-| `fetch_and_update_feed` | app_handle, feed_id | `FetchResult` | 拉取解析入库 |
-| `batch_refresh_feeds` | app_handle | `BatchResult` | 并发刷新所有 Feed |
-| `cancel_batch_refresh` | — | `()` | 取消进行中的刷新 |
-| `export_opml` | app_handle | `String` | 导出 OPML XML |
-| `import_opml` | app_handle, content | `ImportResult` | 解析并导入 OPML |
+### parser.rs
+**文件**: `src-tauri/src/core/parser.rs`
 
-## 核心模块 (core/)
+**职责**: RSS/Atom 解析
 
-> `src-tauri/src/core/`
+**特性**:
+- 使用 `feed-rs` 库
+- 支持 GBK 编码（通过 `encoding_rs`）
+- 自动提取标题、链接、内容
 
-### database.rs — 数据库操作
+**风险**:
+- 某些 Feed 格式不规范可能解析失败
+- 大量文章解析可能占用 CPU
 
-> `src-tauri/src/core/database.rs`
+## 异步任务
 
-使用 `rusqlite` 操作 SQLite，数据库文件存储在 Tauri 应用数据目录。
+### 批量刷新
+**位置**: `feed.rs::batch_refresh_feeds`
 
-**核心操作：**
-
-- 初始化表结构（`feeds`、`articles`、`fetch_logs`）
-- 创建索引（`feed_id`、`published_at DESC`、`is_read`、`is_starred`）
-- Feed CRUD
-- 文章批量插入（事务 + GUID 去重）
-- 文章状态更新
-- 数据库备份（文件复制到用户指定路径）
-- 数据库恢复（从备份文件替换，使用临时文件保证原子性）
-
-### network.rs — 网络请求
-
-> `src-tauri/src/core/network.rs`
-
-基于 `reqwest` 的 HTTP 客户端。
-
-**配置：**
-- 超时：15 秒
-- User-Agent：`RSS Reader/1.0`
-- 自动重试：最多 3 次，指数退避（1s → 2s → 4s）
-- HTTP 重定向：最多 5 次
-- 批量并发控制：最多 3 个并发请求，间隔 100ms
-
-**核心函数：**
-- `fetch_feed(url)` — 拉取单个 Feed
-- `batch_fetch_feeds(urls)` — 批量拉取
-
-### parser.rs — Feed 解析器
-
-> `src-tauri/src/core/parser.rs`
-
-使用 `feed-rs` crate 解析 RSS/Atom 格式。
-
-**支持的格式：**
-- RSS 2.0
-- Atom
-- JSON Feed（规划中）
-
-**解析逻辑：**
-- 提取 Feed 元数据（title、description、icon）
-- 提取文章列表（title、link、summary、content、author、published_at）
-- 处理编码问题（UTF-8、GBK、ISO-8859-1）
-- 解析失败时记录日志但不中断整体流程
-
-### error.rs — 错误类型
-
-> `src-tauri/src/core/error.rs`
-
-使用 `thiserror` 定义结构化错误类型：
-
+**实现**:
 ```rust
-enum AppError {
-    NetworkError(String),    // 网络请求失败
-    ParseError(String),      // XML/Feed 解析失败
-    DatabaseError(String),   // 数据库操作失败
-    ValidationError(String), // 数据验证失败
+for (index, feed) in feeds.iter().enumerate() {
+    // 检查取消
+    if token.is_cancelled() { return; }
+
+    // 拉取并处理
+    let content = network::fetch_feed(&feed.url).await?;
+    let articles = parser::parse_feed(&feed.url, &content)?;
+
+    // 插入数据库
+    database::db_insert_articles(&app, &articles)?;
+
+    // 推送进度
+    app.emit("refresh-progress", json!({
+        "type": "progress",
+        "current": index + 1,
+        "total": total
+    }))?;
 }
 ```
 
-所有错误最终转换为 `String` 以满足 Tauri 命令的序列化要求。
+**风险**:
+- 长时间运行（30s - 5min）
+- 需要全局取消令牌（`CancellationToken`）
 
 ## 错误处理
 
-### 网络错误
+**统一错误类型**: `core/error.rs::AppError`
 
-- 自动重试 3 次（指数退避）
-- 最终失败记录到 `feeds.fetch_error`
-- 前端显示友好错误提示
+```rust
+pub enum AppError {
+    DatabaseError(rusqlite::Error),
+    NetworkError(reqwest::Error),
+    ParseError(String),
+}
+```
 
-### 解析错误
+**传播链**: Core Layer → Command Layer (`Result<T, String>`) → Frontend
 
-- 记录到 `fetch_logs` 表
-- 跳过失败项，继续处理
-- 前端提示"部分文章解析失败"
+## IO 风险点
 
-### 数据库错误
+| 操作 | 位置 | 风险 |
+|------|------|------|
+| 数据库写入 | `database.rs` | 可能阻塞 |
+| 网络请求 | `network.rs` | 可能超时/失败 |
+| 文件读写 | `commands/db.rs` (备份/恢复) | 大文件风险 |
 
-- 使用事务确保原子性
-- 失败时回滚
-- 记录到应用日志文件
-
-### 关联文件
-
-- `src-tauri/src/main.rs`
-- `src-tauri/src/commands/db.rs`
-- `src-tauri/src/commands/feed.rs`
-- `src-tauri/src/core/database.rs`
-- `src-tauri/src/core/network.rs`
-- `src-tauri/src/core/parser.rs`
-- `src-tauri/src/core/error.rs`
+**无文件系统遍历**: 只操作用户选择的文件
+**无 Shell 调用**: 不执行系统命令

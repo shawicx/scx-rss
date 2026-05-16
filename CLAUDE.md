@@ -13,7 +13,17 @@ This project maintains a `.wiki/` directory as the knowledge base. Two rules app
 1. **Before developing a feature**: read the relevant `.wiki/` pages to understand current architecture and design decisions.
 2. **After completing a feature**: update the affected `.wiki/` pages to keep documentation in sync with code.
 
-The wiki index is at `.wiki/Home.md`. Key pages: Architecture.md, Frontend.md, Backend.md, DataModel.md, TechStack.md, Development.md.
+### AI 助手必读
+
+**Claude Code / Cursor / Copilot**: 在开始任何工作前，请先阅读 [.wiki/ai-context.md](.wiki/ai-context.md) 以最快速度理解项目核心架构。
+
+### Wiki 索引
+
+- [.wiki/README.md](.wiki/README.md) - Wiki 导航和项目概览
+- [.wiki/ai-context.md](.wiki/ai-context.md) - AI 5分钟快速理解（**优先阅读**）
+- [.wiki/architecture.md](.wiki/architecture.md) - 系统架构和数据流
+- [.wiki/ipc.md](.wiki/ipc.md) - IPC 调用链和 command 映射
+- [.wiki/risks.md](.wiki/risks.md) - 风险分析和注意事项
 
 ## Build & Run Commands
 
