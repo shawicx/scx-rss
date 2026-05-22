@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import type { Feed } from '@/types'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
+import { useI18n } from '@/composables/useI18n'
 import { validateFeedUrl } from '@/utils/validators'
 
 interface Props {
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 
 const { addFeed, deleteFeed, refreshFeed, refreshAllFeeds } = useFeeds()
 const { showError } = useToast()
+const { t } = useI18n()
 
 const showAddDialog = ref(false)
 const newFeedUrl = ref('')
@@ -78,7 +80,7 @@ const handleRefreshAll = async () => {
         @click="openAddDialog"
       >
         <v-icon start size="16">mdi-plus</v-icon>
-        添加
+        {{ $t('feeds.addFeed') }}
       </v-btn>
       <v-btn
         :disabled="loading || feeds.length === 0"
@@ -89,14 +91,14 @@ const handleRefreshAll = async () => {
         @click="handleRefreshAll"
       >
         <v-icon start size="16">mdi-refresh</v-icon>
-        全部刷新
+        {{ $t('refresh.refreshAll') }}
       </v-btn>
     </div>
 
     <!-- Feed List -->
     <div v-if="feeds.length === 0 && !loading" class="text-center pa-6 text-body-2 text-medium-emphasis">
-      <p>还没有订阅任何源</p>
-      <p class="mt-2 text-caption">点击"添加"按钮开始订阅</p>
+      <p>{{ $t('feeds.noFeeds') }}</p>
+      <p class="mt-2 text-caption">{{ $t('feeds.noFeedsDesc') }}</p>
     </div>
 
     <v-list v-else density="compact" class="bg-transparent" :lines="false">
@@ -122,10 +124,10 @@ const handleRefreshAll = async () => {
 
         <template v-slot:append>
           <div class="d-flex ga-0">
-            <v-btn icon variant="text" size="x-small" title="刷新" @click.stop="handleRefreshFeed(feed.id)">
+            <v-btn icon variant="text" size="x-small" :title="$t('feeds.editFeed')" @click.stop="handleRefreshFeed(feed.id)">
               <v-icon size="14">mdi-refresh</v-icon>
             </v-btn>
-            <v-btn icon variant="text" size="x-small" title="删除" @click.stop="handleDeleteFeed(feed.id, feed.title)">
+            <v-btn icon variant="text" size="x-small" :title="$t('feeds.deleteFeed')" @click.stop="handleDeleteFeed(feed.id, feed.title)">
               <v-icon size="14">mdi-close</v-icon>
             </v-btn>
           </div>
@@ -136,12 +138,12 @@ const handleRefreshAll = async () => {
     <!-- Add Feed Dialog -->
     <v-dialog v-model="showAddDialog" max-width="420">
       <v-card>
-        <v-card-title class="text-body-1 font-weight-semibold">添加订阅源</v-card-title>
+        <v-card-title class="text-body-1 font-weight-semibold">{{ $t('feeds.addFeed') }}</v-card-title>
 
         <v-card-text>
           <v-text-field
             v-model="newFeedUrl"
-            label="订阅源 URL"
+            :label="$t('feeds.feedUrl')"
             placeholder="https://example.com/feed.xml"
             density="compact"
             variant="outlined"
@@ -150,8 +152,8 @@ const handleRefreshAll = async () => {
           />
           <v-text-field
             v-model="newFeedCategory"
-            label="分类（可选）"
-            placeholder="例如：技术、新闻"
+            :label="$t('feeds.feedCategory')"
+            :placeholder="$t('common.edit')"
             density="compact"
             variant="outlined"
             @keydown.enter="handleAddFeed"
@@ -162,14 +164,14 @@ const handleRefreshAll = async () => {
 
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showAddDialog = false">取消</v-btn>
+          <v-btn variant="text" @click="showAddDialog = false">{{ $t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             :loading="adding"
             :disabled="!newFeedUrl"
             @click="handleAddFeed"
           >
-            添加
+            {{ $t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>

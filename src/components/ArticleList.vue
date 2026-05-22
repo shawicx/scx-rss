@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import type { Article } from '@/types'
 import { useArticles } from '@/composables/useArticles'
 import { useKeyboard } from '@/composables/useKeyboard'
+import { useI18n } from '@/composables/useI18n'
 import { formatDate } from '@/utils/formatters'
 
 interface Props {
@@ -27,6 +28,8 @@ const {
   showStarredOnly,
   showAll,
 } = useArticles()
+
+const { t } = useI18n()
 
 const filterMode = ref<'all' | 'unread' | 'starred'>('all')
 const selectedArticleId = ref<number | undefined>(undefined)
@@ -135,9 +138,9 @@ useKeyboard({
         color="primary"
         rounded="sm"
       >
-        <v-btn size="small" value="all">全部</v-btn>
-        <v-btn size="small" value="unread">未读 {{ unreadCount }}</v-btn>
-        <v-btn size="small" value="starred">收藏 {{ starredCount }}</v-btn>
+        <v-btn size="small" value="all">{{ $t('articles.all') }}</v-btn>
+        <v-btn size="small" value="unread">{{ $t('articles.unread') }} {{ unreadCount }}</v-btn>
+        <v-btn size="small" value="starred">{{ $t('articles.starred') }} {{ starredCount }}</v-btn>
       </v-btn-toggle>
     </div>
 
@@ -149,15 +152,9 @@ useKeyboard({
         class="d-flex flex-column align-center justify-center h-100 px-6"
       >
         <v-icon size="48" class="mb-3 text-medium-emphasis">mdi-newspaper-variant-outline</v-icon>
-        <p class="text-body-2 text-medium-emphasis">暂无文章</p>
+        <p class="text-body-2 text-medium-emphasis">{{ $t('articles.noArticles') }}</p>
         <p class="text-caption text-medium-emphasis mt-1">
-          {{
-            filterMode === 'unread'
-              ? '没有未读文章'
-              : filterMode === 'starred'
-                ? '没有收藏文章'
-                : '选择一个订阅源'
-          }}
+          {{ $t('articles.noArticlesDesc') }}
         </p>
       </div>
 

@@ -4,7 +4,7 @@
 mod commands;
 mod core;
 
-use commands::{db, feed};
+use commands::{db, feed, system};
 
 fn main() {
     // 初始化日志
@@ -19,6 +19,7 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_os::init())
         .setup(|app| {
             // 初始化数据库
             let app_handle = app.handle().clone();
@@ -37,6 +38,10 @@ fn main() {
             db::get_categories,
             db::backup_database,
             db::restore_database,
+            db::get_user_setting,
+            db::set_user_setting,
+            // System 命令
+            system::get_system_locale,
             // Feed 命令
             feed::add_feed,
             feed::update_feed,

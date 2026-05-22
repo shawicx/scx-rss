@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { Feed } from '@/types'
 import { invoke } from '@tauri-apps/api/core'
 import { useToast } from './useToast'
+import { useI18n } from './useI18n'
 
 /**
  * Feed 管理组合式函数
@@ -10,6 +11,7 @@ import { useToast } from './useToast'
  */
 export function useFeeds() {
   const { showSuccess, showError } = useToast()
+  const { t } = useI18n()
 
   // Feed 列表状态
   const feeds: Ref<Feed[]> = ref([])
@@ -25,7 +27,7 @@ export function useFeeds() {
       feeds.value = result
       return result
     } catch (error) {
-      showError(`获取 Feed 列表失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return []
     } finally {
       loading.value = false
@@ -42,10 +44,10 @@ export function useFeeds() {
       loading.value = true
       const newFeed = await invoke<Feed>('add_feed', { url, category })
       feeds.value.push(newFeed)
-      showSuccess(`成功添加 Feed: ${newFeed.title}`)
+      showSuccess(`${t('toast.success')}: ${newFeed.title}`)
       return newFeed
     } catch (error) {
-      showError(`添加 Feed 失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return null
     } finally {
       loading.value = false
@@ -61,10 +63,10 @@ export function useFeeds() {
       loading.value = true
       await invoke('delete_feed', { feedId: id })
       feeds.value = feeds.value.filter((feed) => feed.id !== id)
-      showSuccess('Feed 删除成功')
+      showSuccess(t('toast.success'))
       return true
     } catch (error) {
-      showError(`删除 Feed 失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return false
     } finally {
       loading.value = false
@@ -92,10 +94,10 @@ export function useFeeds() {
       if (index !== -1) {
         feeds.value[index] = updated
       }
-      showSuccess('订阅源更新成功')
+      showSuccess(t('toast.success'))
       return true
     } catch (error) {
-      showError(`更新订阅源失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return false
     } finally {
       loading.value = false
@@ -113,7 +115,7 @@ export function useFeeds() {
       showSuccess(message)
       return true
     } catch (error) {
-      showError(`刷新 Feed 失败: ${error}`)
+      showError(`${t('refresh.refreshFailed')}: ${error}`)
       return false
     } finally {
       loading.value = false
@@ -130,7 +132,7 @@ export function useFeeds() {
       showSuccess(message)
       return true
     } catch (error) {
-      showError(`批量刷新失败: ${error}`)
+      showError(`${t('refresh.refreshFailed')}: ${error}`)
       return false
     } finally {
       loading.value = false

@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { useToast } from '@/composables/useToast'
+import { useI18n } from '@/composables/useI18n'
 
 interface RefreshProgress {
   type: 'start' | 'progress' | 'feed-success' | 'feed-error' | 'complete' | 'cancelled'
@@ -27,6 +28,7 @@ const emit = defineEmits<{
 }>()
 
 const { showError } = useToast()
+const { t } = useI18n()
 
 const current = ref(0)
 const total = ref(0)
@@ -107,7 +109,7 @@ const progressPercentage = () => {
     <v-card>
       <!-- Header -->
       <v-card-title class="d-flex align-center justify-between pa-5 pb-3">
-        <span class="text-body-1 font-weight-semibold">批量刷新</span>
+        <span class="text-body-1 font-weight-semibold">{{ $t('refresh.refreshAll') }}</span>
         <v-btn icon variant="text" size="small" @click="emit('close')">
           <v-icon size="18">mdi-close</v-icon>
         </v-btn>
@@ -130,22 +132,22 @@ const progressPercentage = () => {
 
         <!-- Current feed -->
         <p v-if="currentFeedTitle" class="text-caption text-medium-emphasis text-truncate mb-3">
-          正在刷新：{{ currentFeedTitle }}
+          {{ $t('refresh.refreshing') }}：{{ currentFeedTitle }}
         </p>
 
         <!-- Stats -->
         <div class="d-flex ga-3 text-center mt-3">
           <div class="flex-1-1">
             <div class="text-h6 font-weight-bold text-success">{{ successCount }}</div>
-            <div class="text-caption text-medium-emphasis">成功</div>
+            <div class="text-caption text-medium-emphasis">{{ $t('refresh.refreshSuccess') }}</div>
           </div>
           <div class="flex-1-1">
             <div class="text-h6 font-weight-bold text-error">{{ failureCount }}</div>
-            <div class="text-caption text-medium-emphasis">失败</div>
+            <div class="text-caption text-medium-emphasis">{{ $t('refresh.refreshFailed') }}</div>
           </div>
           <div class="flex-1-1">
             <div class="text-h6 font-weight-bold text-primary">{{ totalNewArticles }}</div>
-            <div class="text-caption text-medium-emphasis">新文章</div>
+            <div class="text-caption text-medium-emphasis">{{ $t('articles.all') }}</div>
           </div>
         </div>
       </v-card-text>
@@ -153,7 +155,7 @@ const progressPercentage = () => {
       <v-divider />
       <v-card-actions class="justify-end pa-3">
         <v-btn variant="text" size="small" :loading="isCancelling" @click="cancelRefresh">
-          {{ isCancelling ? '取消中...' : '取消刷新' }}
+          {{ isCancelling ? $t('common.loading') : $t('common.cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>

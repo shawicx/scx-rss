@@ -75,6 +75,16 @@ pub fn db_init(app: &AppHandle) -> AppResult<()> {
         [],
     )?;
 
+    // 创建 user_settings 表
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS user_settings (
+            key TEXT PRIMARY KEY NOT NULL,
+            value TEXT NOT NULL,
+            updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+        )",
+        [],
+    )?;
+
     // 创建索引以提高查询性能
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_articles_feed_id ON articles(feed_id)",
@@ -90,6 +100,10 @@ pub fn db_init(app: &AppHandle) -> AppResult<()> {
     )?;
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_articles_is_starred ON articles(is_starred)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_user_settings_key ON user_settings(key)",
         [],
     )?;
 
@@ -492,5 +506,35 @@ pub fn db_restore_database(app: &AppHandle, backup_path: &std::path::Path) -> Ap
     std::fs::copy(backup_path, &tmp_path)?;
     std::fs::rename(&tmp_path, &db_path)?;
     tracing::info!("Database restored from: {:?}", backup_path);
+    Ok(())
+}
+
+/// 获取用户设置
+pub fn db_get_user_setting(app: &AppHandle, key: &str) -> AppResult<Option<String>> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    match conn.query_row(
+        "SELECT value FROM user_settings WHERE key = ?1",
+        params![key],
+        |row| row.get(0),
+    ) {
+        Ok(value) => Ok(Some(value)),
+        Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+        Err(e) => Err(e.into()),
+    }
+}
+
+/// 设置用户设置
+pub fn db_set_user_setting(app: &AppHandle, key: &str, value: &str) -> AppResult<()> {
+    let db_path = get_db_path(app);
+    let conn = Connection::open(&db_path)?;
+
+    let now = Utc::now().timestamp();
+    conn.execute(
+        "INSERT OR REPLACE INTO user_settings (key, value, updated_at) VALUES (?1, ?2, ?3)",
+        params![key, value, now],
+    )?;
+    tracing::info!("User setting updated: {} = {}", key, value);
     Ok(())
 }

@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { Category } from '@/types'
 import { invoke } from '@tauri-apps/api/core'
 import { useToast } from './useToast'
+import { useI18n } from './useI18n'
 
 /**
  * 分类管理组合式函数
@@ -10,6 +11,7 @@ import { useToast } from './useToast'
  */
 export function useCategories() {
   const { showError } = useToast()
+  const { t } = useI18n()
 
   // 分类列表状态
   const categories: Ref<Category[]> = ref([])
@@ -25,7 +27,7 @@ export function useCategories() {
       categories.value = result
       return result
     } catch (error) {
-      showError(`获取分类列表失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return []
     } finally {
       loading.value = false

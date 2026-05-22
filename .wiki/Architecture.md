@@ -103,3 +103,36 @@ for each feed:
 | `tauri-plugin-fs` | 文件读写 | `fs:allow-read/write-file` |
 
 配置: `src-tauri/capabilities/default.json`
+
+## 国际化 (i18n)
+
+### 架构
+- 使用 vue-i18n 进行前端国际化
+- 支持中文和英文双语
+- 语言设置存储在 `user_settings` 表中
+- Rust 后端返回错误码，前端根据错误码翻译
+
+### 数据流
+1. 应用启动时，从数据库读取语言设置
+2. 如果不存在，检测系统语言
+3. 用户可以在设置中手动切换语言
+4. 语言设置持久化到数据库
+
+### 翻译文件
+- `src/locales/zh-CN.ts`: 中文翻译
+- `src/locales/en.ts`: 英文翻译
+- `src/i18n.ts`: i18n 配置
+- `src/composables/useI18n.ts`: i18n 组合式函数
+
+### 使用方式
+```typescript
+// 在组件中使用
+import { useI18n } from '@/composables/useI18n'
+const { t, locale, setLocale } = useI18n()
+
+// 模板中使用
+{{ $t('settings.title') }}
+
+// 设置语言
+await setLocale('en') // 'zh-CN' | 'en' | 'system'
+```

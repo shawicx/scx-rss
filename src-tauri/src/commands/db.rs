@@ -65,3 +65,19 @@ pub async fn restore_database(app: AppHandle, backup_path: String) -> Result<Str
     database::db_restore_database(&app, path).map_err(|e| e.to_string())?;
     Ok("Database restored successfully".to_string())
 }
+
+/// 获取用户设置
+#[tauri::command]
+pub async fn get_user_setting(app: AppHandle, key: String) -> Result<Option<String>, String> {
+    database::db_get_user_setting(&app, &key).map_err(|e| e.to_string())
+}
+
+/// 设置用户设置
+#[tauri::command]
+pub async fn set_user_setting(
+    app: AppHandle,
+    key: String,
+    value: String,
+) -> Result<(), String> {
+    database::db_set_user_setting(&app, &key, &value).map_err(|e| e.to_string())
+}

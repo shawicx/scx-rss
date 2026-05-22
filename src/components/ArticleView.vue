@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import type { Article } from '@/types'
 import { useArticles } from '@/composables/useArticles'
+import { useI18n } from '@/composables/useI18n'
 import { formatDate } from '@/utils/formatters'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { toggleRead, toggleStar } = useArticles()
+const { t } = useI18n()
 const currentArticle = ref<Article | undefined>(props.article)
 
 watch(
@@ -57,7 +59,7 @@ const renderContent = (): string => {
       >
         <v-icon size="28" color="primary">mdi-book-open-variant</v-icon>
       </v-sheet>
-      <p class="text-body-1 font-weight-medium text-medium-emphasis">选择一篇文章开始阅读</p>
+      <p class="text-body-1 font-weight-medium text-medium-emphasis">{{ $t('articles.noArticlesDesc') }}</p>
     </div>
 
     <!-- Article Content -->
@@ -93,10 +95,10 @@ const renderContent = (): string => {
           variant="tonal"
           class="mr-1"
         >
-          已收藏
+          {{ $t('articles.starred') }}
         </v-chip>
         <v-chip v-if="currentArticle.is_read" size="small" variant="tonal" class="mr-2">
-          已读
+          {{ $t('articles.all') }}
         </v-chip>
       </v-toolbar>
 
@@ -132,7 +134,7 @@ const renderContent = (): string => {
           rel="noopener noreferrer"
           class="d-inline-flex align-center ga-2 text-caption font-weight-medium text-primary text-decoration-none"
         >
-          阅读原文
+          {{ $t('articles.all') }}
           <v-icon size="12">mdi-open-in-new</v-icon>
         </a>
       </article>

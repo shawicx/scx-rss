@@ -10,10 +10,12 @@ import type { Article } from '@/types'
 import { useToast } from '@/composables/useToast'
 import { useTheme } from '@/composables/useTheme'
 import { useResizable } from '@/composables/useResizable'
+import { useI18n } from '@/composables/useI18n'
 import { STORAGE_KEYS } from '@/utils/constants'
 
 const { showError } = useToast()
 useTheme()
+const { init } = useI18n()
 
 const currentFeedId = ref<number | undefined>(undefined)
 const currentArticle = ref<Article | undefined>(undefined)
@@ -36,6 +38,7 @@ const { width: listWidth, isResizing: isListResizing, onDragStart: onListDragSta
 onMounted(async () => {
   try {
     await invoke('init_db')
+    await init()
     isInitialized.value = true
   } catch (error) {
     console.error('数据库初始化失败:', error)

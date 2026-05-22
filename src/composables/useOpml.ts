@@ -2,12 +2,14 @@ import { invoke } from '@tauri-apps/api/core'
 import { save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import { useToast } from './useToast'
+import { useI18n } from './useI18n'
 
 /**
  * OPML 导入/导出功能
  */
 export function useOpml() {
   const { showSuccess, showError, showInfo } = useToast()
+  const { t } = useI18n()
 
   /**
    * 导出所有 Feeds 为 OPML 文件
@@ -33,17 +35,17 @@ export function useOpml() {
       })
 
       if (!filePath) {
-        showInfo('导出已取消')
+        showInfo(t('errors.backupCancelled'))
         return
       }
 
       // 3. 写入文件
       await writeTextFile(filePath, opmlXml)
 
-      showSuccess(`OPML 已成功导出到 ${filePath}`)
+      showSuccess(`${t('toast.success')}: ${filePath}`)
     } catch (error) {
       console.error('OPML 导出失败:', error)
-      showError(`OPML 导出失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
     }
   }
 
@@ -71,7 +73,7 @@ export function useOpml() {
       })
 
       if (!selected || typeof selected !== 'string') {
-        showInfo('导入已取消')
+        showInfo(t('errors.restoreCancelled'))
         return
       }
 
@@ -85,7 +87,7 @@ export function useOpml() {
       showSuccess(result)
     } catch (error) {
       console.error('OPML 导入失败:', error)
-      showError(`OPML 导入失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
     }
   }
 

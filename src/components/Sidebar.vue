@@ -6,6 +6,7 @@ import Settings from './Settings.vue'
 import { useFeeds } from '@/composables/useFeeds'
 import { useCategories } from '@/composables/useCategories'
 import { useToast } from '@/composables/useToast'
+import { useI18n } from '@/composables/useI18n'
 import { invoke } from '@tauri-apps/api/core'
 const emit = defineEmits<{
   (e: 'feed-selected', feedId: number): void
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 const { feeds, loading, init, refresh, deleteFeed, refreshFeed } = useFeeds()
 const { categories, init: initCategories, refresh: refreshCategories } = useCategories()
 const { showSuccess, showError } = useToast()
+const { t } = useI18n()
 
 const showRefreshProgress = ref(false)
 const isRefreshing = ref(false)
@@ -90,7 +92,7 @@ const handleFeedRefresh = async (feedId: number) => {
     <!-- Header -->
     <div class="pa-5 pb-4">
       <h1 class="text-h6 font-weight-bold tracking-wide">SCX RSS</h1>
-      <p class="text-body-2 mt-1 text-medium-emphasis">{{ feeds.length }} 个订阅源</p>
+      <p class="text-body-2 mt-1 text-medium-emphasis">{{ feeds.length }} {{ $t('feeds.allFeeds') }}</p>
 
       <!-- Actions -->
       <v-btn
@@ -103,7 +105,7 @@ const handleFeedRefresh = async (feedId: number) => {
         prepend-icon="mdi-refresh"
         @click="startBatchRefresh"
       >
-        {{ isRefreshing ? '刷新中' : '全部刷新' }}
+        {{ isRefreshing ? $t('refresh.refreshing') : $t('refresh.refreshAll') }}
       </v-btn>
     </div>
 
@@ -132,7 +134,7 @@ const handleFeedRefresh = async (feedId: number) => {
     <v-divider />
     <div class="pa-3">
       <v-btn variant="text" block prepend-icon="mdi-cog" @click="showSettings = true" size="large">
-        设置
+        {{ $t('settings.title') }}
       </v-btn>
     </div>
 

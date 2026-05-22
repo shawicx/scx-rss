@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { Category, Feed } from '@/types'
 import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
+import { useI18n } from '@/composables/useI18n'
 import { validateFeedUrl } from '@/utils/validators'
 
 interface Props {
@@ -23,6 +24,7 @@ const emit = defineEmits<{
 
 const { addFeed, updateFeed } = useFeeds()
 const { showError } = useToast()
+const { t } = useI18n()
 
 const showAddDialog = ref(false)
 const newFeedUrl = ref('')
@@ -134,7 +136,7 @@ const handleEditFeed = async () => {
       @click="openAddDialog"
     >
       <v-icon start size="16">mdi-plus</v-icon>
-      添加订阅源
+      {{ $t('feeds.addFeed') }}
     </v-btn>
 
     <!-- Empty state -->
@@ -142,7 +144,7 @@ const handleEditFeed = async () => {
       v-if="categories.length === 0 && !loading"
       class="py-8 text-center text-body-2 text-medium-emphasis"
     >
-      暂无分类
+      {{ $t('categories.allCategories') }}
     </div>
 
     <!-- Categories -->
@@ -198,7 +200,7 @@ const handleEditFeed = async () => {
                 icon
                 variant="text"
                 size="x-small"
-                title="编辑"
+                :title="$t('feeds.editFeed')"
                 @click.stop="openEditDialog(feed)"
               >
                 <v-icon size="14">mdi-pencil</v-icon>
@@ -229,7 +231,7 @@ const handleEditFeed = async () => {
           v-if="getFeedsByCategory(category.name).length === 0"
           class="px-3 py-2 text-caption text-medium-emphasis"
         >
-          暂无订阅源
+          {{ $t('feeds.noFeeds') }}
         </div>
       </v-list-group>
     </v-list>
@@ -237,12 +239,12 @@ const handleEditFeed = async () => {
     <!-- Add Feed Dialog -->
     <v-dialog v-model="showAddDialog" max-width="420">
       <v-card>
-        <v-card-title class="text-body-1 font-weight-semibold">添加订阅源</v-card-title>
+        <v-card-title class="text-body-1 font-weight-semibold">{{ $t('feeds.addFeed') }}</v-card-title>
 
         <v-card-text>
           <v-text-field
             v-model="newFeedUrl"
-            label="订阅源 URL"
+            :label="$t('feeds.feedUrl')"
             placeholder="https://example.com/feed.xml"
             density="compact"
             variant="outlined"
@@ -254,8 +256,8 @@ const handleEditFeed = async () => {
           <v-combobox
             v-model="newFeedCategory"
             :items="categoryNames"
-            label="分类（可选）"
-            placeholder="选择或输入新分类"
+            :label="$t('feeds.feedCategory')"
+            :placeholder="$t('common.edit')"
             density="compact"
             variant="outlined"
             clearable
@@ -267,9 +269,9 @@ const handleEditFeed = async () => {
 
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showAddDialog = false">取消</v-btn>
+          <v-btn variant="text" @click="showAddDialog = false">{{ $t('common.cancel') }}</v-btn>
           <v-btn color="primary" :loading="adding" :disabled="!newFeedUrl" @click="handleAddFeed">
-            添加
+            {{ $t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -278,12 +280,12 @@ const handleEditFeed = async () => {
     <!-- Edit Feed Dialog -->
     <v-dialog v-model="showEditDialog" max-width="420">
       <v-card>
-        <v-card-title class="text-body-1 font-weight-semibold">编辑订阅源</v-card-title>
+        <v-card-title class="text-body-1 font-weight-semibold">{{ $t('feeds.editFeed') }}</v-card-title>
 
         <v-card-text>
           <v-text-field
             v-model="editTitle"
-            label="标题"
+            :label="$t('feeds.feedTitle')"
             density="compact"
             variant="outlined"
             class="mb-3"
@@ -291,7 +293,7 @@ const handleEditFeed = async () => {
           />
           <v-text-field
             v-model="editUrl"
-            label="订阅源 URL"
+            :label="$t('feeds.feedUrl')"
             density="compact"
             variant="outlined"
             class="mb-3"
@@ -300,8 +302,8 @@ const handleEditFeed = async () => {
           <v-combobox
             v-model="editCategory"
             :items="categoryNames"
-            label="分类（可选）"
-            placeholder="选择或输入新分类"
+            :label="$t('feeds.feedCategory')"
+            :placeholder="$t('common.edit')"
             density="compact"
             variant="outlined"
             clearable
@@ -313,8 +315,8 @@ const handleEditFeed = async () => {
 
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showEditDialog = false">取消</v-btn>
-          <v-btn color="primary" :loading="saving" @click="handleEditFeed"> 保存 </v-btn>
+          <v-btn variant="text" @click="showEditDialog = false">{{ $t('common.cancel') }}</v-btn>
+          <v-btn color="primary" :loading="saving" @click="handleEditFeed"> {{ $t('common.save') }} </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

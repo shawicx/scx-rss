@@ -7,6 +7,7 @@ import { useFeeds } from '@/composables/useFeeds'
 import { useToast } from '@/composables/useToast'
 import { useTheme, type ThemePreference } from '@/composables/useTheme'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
+import { useI18n } from '@/composables/useI18n'
 import { AUTO_REFRESH_OPTIONS } from '@/utils/constants'
 
 defineProps<{
@@ -23,6 +24,7 @@ const { exportOpml, importOpml } = useOpml()
 const { refresh } = useFeeds()
 const { showSuccess, showError, showInfo } = useToast()
 const { preference, setPreference } = useTheme()
+const { locale, t, setLocale } = useI18n()
 const {
   enabled: autoRefreshEnabled,
   intervalMinutes,
@@ -36,10 +38,16 @@ const isImporting = ref(false)
 const isBackingUp = ref(false)
 const isRestoring = ref(false)
 
+const languageOptions = [
+  { title: t('settings.followSystem'), value: 'system' as const },
+  { title: t('settings.simplifiedChinese'), value: 'zh-CN' as const },
+  { title: t('settings.english'), value: 'en' as const },
+]
+
 const themeOptions = [
-  { title: '浅色', value: 'light' as ThemePreference },
-  { title: '深色', value: 'dark' as ThemePreference },
-  { title: '跟随系统', value: 'system' as ThemePreference },
+  { title: t('theme.light'), value: 'light' as ThemePreference },
+  { title: t('theme.dark'), value: 'dark' as ThemePreference },
+  { title: t('theme.system'), value: 'system' as ThemePreference },
 ]
 
 const handleExport = async () => {
@@ -75,13 +83,13 @@ const handleBackup = async () => {
       filters: [{ name: 'SQLite 数据库', extensions: ['db'] }],
     })
     if (!filePath) {
-      showInfo('备份已取消')
+      showInfo(t('errors.backupCancelled'))
       return
     }
     await invoke('backup_database', { backupPath: filePath })
-    showSuccess('数据库备份成功')
+    showSuccess(t('errors.backupSuccess'))
   } catch (error) {
-    showError(`备份失败: ${error}`)
+    showError(`${t('errors.backupFailed')}: ${error}`)
   } finally {
     isBackingUp.value = false
   }
@@ -96,17 +104,17 @@ const handleRestore = async () => {
       filters: [{ name: 'SQLite 数据库', extensions: ['db'] }],
     })
     if (!selected || typeof selected !== 'string') {
-      showInfo('恢复已取消')
+      showInfo(t('errors.restoreCancelled'))
       return
     }
-    if (!confirm('恢复操作将覆盖当前所有数据，是否继续？')) {
+    if (!confirm(t('errors.restoreConfirm'))) {
       return
     }
     await invoke('restore_database', { backupPath: selected })
-    showSuccess('数据恢复成功，正在重新加载...')
+    showSuccess(t('errors.restoreSuccess'))
     emit('data-restored')
   } catch (error) {
-    showError(`恢复失败: ${error}`)
+    showError(`${t('errors.restoreFailed')}: ${error}`)
   } finally {
     isRestoring.value = false
   }
@@ -122,16 +130,31 @@ const close = () => {
     <v-card>
       <!-- Header -->
       <v-card-title class="d-flex align-center justify-between pa-5 pb-3">
-        <span class="text-body-1 font-weight-semibold">设置</span>
+        <span class="text-body-1 font-weight-semibold">{{ $t('settings.title') }}</span>
         <v-btn icon variant="text" size="small" @click="close">
           <v-icon size="18">mdi-close</v-icon>
         </v-btn>
       </v-card-title>
 
       <v-card-text class="px-5 pb-3">
+        <!-- Language Selector (新增) -->
+        <div class="mb-5">
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('settings.language') }}</h3>
+          <v-select
+            :model-value="locale === 'zh-CN' || locale === 'en' ? locale : 'system'"
+            :items="languageOptions"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:model-value="setLocale"
+          />
+        </div>
+
         <!-- Theme Selector -->
         <div class="mb-5">
-          <h3 class="text-caption font-weight-medium mb-2">主题</h3>
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('settings.theme') }}</h3>
           <v-select
             :model-value="preference"
             :items="themeOptions"
@@ -146,12 +169,12 @@ const close = () => {
 
         <!-- Auto-Refresh -->
         <div class="mb-5">
-          <h3 class="text-caption font-weight-medium mb-2">自动刷新</h3>
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('settings.autoRefresh') }}</h3>
           <p class="text-caption text-medium-emphasis mb-3">
-            定时自动拉取所有订阅源的最新文章，仅在发现新内容时通知。
+            {{ $t('settings.autoRefreshDesc') }}
           </p>
           <div class="d-flex align-center justify-between mb-2">
-            <span class="text-body-2">启用自动刷新</span>
+            <span class="text-body-2">{{ $t('settings.enableAutoRefresh') }}</span>
             <v-switch
               :model-value="autoRefreshEnabled"
               color="primary"
@@ -169,21 +192,21 @@ const close = () => {
               density="compact"
               variant="outlined"
               hide-details
-              label="刷新间隔"
+              :label="$t('settings.refreshInterval')"
               @update:model-value="setRefreshInterval"
             />
             <p class="text-caption text-medium-emphasis mt-2">
               <v-icon size="14" class="mr-1">mdi-clock-outline</v-icon>
-              上次刷新：{{ formatLastRefreshed() }}
+              {{ $t('settings.lastRefresh') }}：{{ formatLastRefreshed() }}
             </p>
           </template>
         </div>
 
         <!-- OPML Import/Export -->
         <div class="mb-5">
-          <h3 class="text-caption font-weight-medium mb-2">OPML 导入 / 导出</h3>
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('settings.opml') }}</h3>
           <p class="text-caption text-medium-emphasis mb-3">
-            将订阅源导出为 OPML 文件以备份，或从 OPML 文件导入订阅源。
+            {{ $t('settings.opmlDesc') }}
           </p>
           <div class="d-flex ga-2">
             <v-btn
@@ -195,7 +218,7 @@ const close = () => {
               prepend-icon="mdi-download"
               @click="handleExport"
             >
-              导出
+              {{ $t('settings.export') }}
             </v-btn>
             <v-btn
               :loading="isImporting"
@@ -206,16 +229,16 @@ const close = () => {
               prepend-icon="mdi-upload"
               @click="handleImport"
             >
-              导入
+              {{ $t('settings.import') }}
             </v-btn>
           </div>
         </div>
 
         <!-- Data Backup/Restore -->
         <div class="mb-5">
-          <h3 class="text-caption font-weight-medium mb-2">数据备份 / 恢复</h3>
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('settings.backup') }}</h3>
           <p class="text-caption text-medium-emphasis mb-3">
-            备份完整数据库（含文章、订阅、阅读状态），或从备份文件恢复。
+            {{ $t('settings.backupDesc') }}
           </p>
           <div class="d-flex ga-2">
             <v-btn
@@ -227,7 +250,7 @@ const close = () => {
               prepend-icon="mdi-download"
               @click="handleBackup"
             >
-              备份数据
+              {{ $t('settings.backupData') }}
             </v-btn>
             <v-btn
               :loading="isRestoring"
@@ -238,19 +261,21 @@ const close = () => {
               prepend-icon="mdi-upload"
               @click="handleRestore"
             >
-              恢复数据
+              {{ $t('settings.restoreData') }}
             </v-btn>
           </div>
         </div>
 
         <!-- About -->
         <v-divider class="mb-4" />
-        <p class="text-caption text-center text-medium-emphasis">SCX RSS Reader · v1.0.0</p>
+        <p class="text-caption text-center text-medium-emphasis">
+          SCX RSS Reader · {{ $t('about.version') }} 1.0.0
+        </p>
       </v-card-text>
 
       <v-divider />
       <v-card-actions class="justify-end pa-3">
-        <v-btn variant="text" size="small" @click="close">关闭</v-btn>
+        <v-btn variant="text" size="small" @click="close">{{ $t('common.close') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

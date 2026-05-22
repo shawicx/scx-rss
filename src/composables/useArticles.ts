@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { Article, ArticleFilter } from '@/types'
 import { invoke } from '@tauri-apps/api/core'
 import { useToast } from './useToast'
+import { useI18n } from './useI18n'
 
 /**
  * 文章管理组合式函数
@@ -10,6 +11,7 @@ import { useToast } from './useToast'
  */
 export function useArticles() {
   const { showSuccess, showError } = useToast()
+  const { t } = useI18n()
 
   // 文章列表状态
   const articles: Ref<Article[]> = ref([])
@@ -38,7 +40,7 @@ export function useArticles() {
       articles.value = result
       return result
     } catch (error) {
-      showError(`获取文章列表失败: ${error}`)
+      showError(`${t('toast.error')}: ${error}`)
       return []
     } finally {
       loading.value = false
