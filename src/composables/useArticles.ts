@@ -15,6 +15,7 @@ export function useArticles() {
 
   // 文章列表状态
   const articles: Ref<Article[]> = ref([])
+  const allArticles: Ref<Article[]> = ref([]) // 用于统计，不受筛选影响
   const loading = ref(false)
 
   // 当前选中的 Feed ID
@@ -36,9 +37,23 @@ export function useArticles() {
     try {
       loading.value = true
       const queryFilter = customFilter || filter.value
-      const result = await invoke<Article[]>('get_articles', { filter: queryFilter })
-      articles.value = result
-      return result
+
+      // 如果有筛选条件（只看未读或收藏），需要同时获取全部文章用于统计
+      if (queryFilter.unread_only || queryFilter.starred_only) {
+        const allFilter = { ...queryFilter, unread_only: false, starred_only: false }
+        const [filtered, all] = await Promise.all([
+          invoke<Article[]>('get_articles', { filter: queryFilter }),
+          invoke<Article[]>('get_articles', { filter: allFilter })
+        ])
+        articles.value = filtered
+        allArticles.value = all
+        return filtered
+      } else {
+        const result = await invoke<Article[]>('get_articles', { filter: queryFilter })
+        articles.value = result
+        allArticles.value = result
+        return result
+      }
     } catch (error) {
       showError(`${t('toast.error')}: ${error}`)
       return []
@@ -72,8 +87,12 @@ export function useArticles() {
 
       // 更新本地状态
       const article = articles.value.find((a) => a.id === id)
+      const allArticle = allArticles.value.find((a) => a.id === id)
       if (article) {
         article.is_read = isRead
+      }
+      if (allArticle) {
+        allArticle.is_read = isRead
       }
 
       return true
@@ -112,6 +131,10 @@ export function useArticles() {
 
       // 更新本地状态
       article.is_starred = !article.is_starred
+      const allArticle = allArticles.value.find((a) => a.id === id)
+      if (allArticle) {
+        allArticle.is_starred = !allArticle.is_starred
+      }
 
       const message = article.is_starred ? '已收藏' : '已取消收藏'
       showSuccess(message)
@@ -158,14 +181,14 @@ export function useArticles() {
     return articles.value.find((a) => a.id === id)
   }
 
-  // 计算属性：未读文章数
+  // 计算属性：未读文章数（基于全部文章）
   const unreadCount = computed(() => {
-    return articles.value.filter((a) => !a.is_read).length
+    return allArticles.value.filter((a) => !a.is_read).length
   })
 
-  // 计算属性：收藏文章数
+  // 计算属性：收藏文章数（基于全部文章）
   const starredCount = computed(() => {
-    return articles.value.filter((a) => a.is_starred).length
+    return allArticles.value.filter((a) => a.is_starred).length
   })
 
   return {

@@ -37,7 +37,7 @@ export default {
   articles: {
     all: '全部',
     unread: '未读',
-    starred: '收藏',
+    starred: '已收藏',
     noArticles: '暂无文章',
     noArticlesDesc: '订阅源后，文章将显示在这里',
   },

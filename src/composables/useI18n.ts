@@ -5,7 +5,7 @@ import { ref, type Ref } from 'vue'
 export type SupportedLocale = 'zh-CN' | 'en' | 'system'
 
 export function useI18n() {
-  const { locale, t } = useVueI18n<SupportLocale>()
+  const { locale, t } = useVueI18n()
   const initialized = ref(false)
 
   /**

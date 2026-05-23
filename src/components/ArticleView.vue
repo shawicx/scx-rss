@@ -93,12 +93,9 @@ const renderContent = (): string => {
           size="small"
           color="warning"
           variant="tonal"
-          class="mr-1"
+          class="mr-2"
         >
           {{ $t('articles.starred') }}
-        </v-chip>
-        <v-chip v-if="currentArticle.is_read" size="small" variant="tonal" class="mr-2">
-          {{ $t('articles.all') }}
         </v-chip>
       </v-toolbar>
 
