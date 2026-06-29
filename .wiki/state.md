@@ -74,6 +74,21 @@ listen('refresh-progress', (event) => {
 })
 ```
 
+### 4. 语言设置
+**位置**: `useI18n.ts`
+
+**更新时机**:
+- 应用启动时（从数据库或系统语言初始化）
+- 用户在设置中切换语言时
+
+**持久化**: `user_settings` 表（key='language'，value='zh-CN' | 'en' | 'system'）
+
+```typescript
+const { locale, setLocale } = useI18n()
+locale.value // 当前实际语言 ('zh-CN' | 'en')
+await setLocale('en') // 切换并持久化
+```
+
 ## 无 Rust 全局状态
 
 **原因**: Tauri Commands 无状态，每次调用独立

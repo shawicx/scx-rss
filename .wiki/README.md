@@ -33,12 +33,14 @@ pnpm tauri:build  # 生产构建
 ```
 src/                    # Vue 3 前端
 ├── components/          # 9 个 Vuetify 组件
-├── composables/         # 9 个业务逻辑 hooks
-└── types/               # TypeScript 类型定义
+├── composables/         # 10 个业务逻辑 hooks（含 useI18n）
+├── locales/             # 国际化翻译文件 (zh-CN.ts, en.ts)
+├── types/               # TypeScript 类型定义
+└── i18n.ts              # vue-i18n 配置
 
 src-tauri/              # Rust 后端
 ├── src/
-│   ├── commands/        # IPC handlers (db.rs, feed.rs)
+│   ├── commands/        # IPC handlers (db.rs, feed.rs, system.rs)
 │   └── core/            # 核心模块 (database, network, parser)
 └── capabilities/        # 权限配置
 ```

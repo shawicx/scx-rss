@@ -17,6 +17,9 @@
 | `import_opml` | `useOpml.importOpml()` | `feed.rs:344` | 导入 OPML |
 | `backup_database` | `useOpml.backupDb()` | `db.rs:55` | 备份数据库 |
 | `restore_database` | `useOpml.restoreDb()` | `db.rs:63` | 恢复数据库 |
+| `get_user_setting` | `useI18n.init()/setLocale()` | `db.rs:69` | 获取用户设置 |
+| `set_user_setting` | `useI18n.setLocale()` | `db.rs:75` | 设置用户设置 |
+| `get_system_locale` | `useI18n.getSystemLocale()` | `system.rs:1` | 获取系统语言 |
 
 ## 前后端调用链
 

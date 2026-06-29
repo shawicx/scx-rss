@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { getVersion } from '@tauri-apps/api/app'
 import { save, open } from '@tauri-apps/plugin-dialog'
 import { useOpml } from '@/composables/useOpml'
 import { useFeeds } from '@/composables/useFeeds'
@@ -8,6 +9,7 @@ import { useToast } from '@/composables/useToast'
 import { useTheme, type ThemePreference } from '@/composables/useTheme'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
 import { useI18n } from '@/composables/useI18n'
+import { useAutoUpdate } from '@/composables/useAutoUpdate'
 import { AUTO_REFRESH_OPTIONS } from '@/utils/constants'
 
 defineProps<{
@@ -32,11 +34,13 @@ const {
   setRefreshInterval,
   formatLastRefreshed,
 } = useAutoRefresh()
+const { checkForUpdate, checking: isCheckingUpdate } = useAutoUpdate()
 
 const isExporting = ref(false)
 const isImporting = ref(false)
 const isBackingUp = ref(false)
 const isRestoring = ref(false)
+const appVersion = ref('')
 
 const languageOptions = [
   { title: t('settings.followSystem'), value: 'system' as const },
@@ -120,9 +124,26 @@ const handleRestore = async () => {
   }
 }
 
+const handleCheckUpdate = async () => {
+  try {
+    const found = await checkForUpdate({ manual: true })
+    if (!found) {
+      showInfo(t('update.upToDate'))
+    }
+    // 若 found 为 true，UpdateDialog 已自动弹出（showDialog 已置 true）
+  } catch (error) {
+    showError(`${t('update.failed')}: ${error}`)
+  }
+}
+
 const close = () => {
   emit('close')
 }
+
+// 读取应用版本号（用于关于区展示）
+getVersion().then((v) => {
+  appVersion.value = v
+})
 </script>
 
 <template>
@@ -266,11 +287,27 @@ const close = () => {
           </div>
         </div>
 
-        <!-- About -->
+        <!-- About + Update Check -->
         <v-divider class="mb-4" />
-        <p class="text-caption text-center text-medium-emphasis">
-          SCX RSS Reader · {{ $t('about.version') }} 1.0.0
-        </p>
+        <div class="mb-2">
+          <h3 class="text-caption font-weight-medium mb-2">{{ $t('update.checkForUpdates') }}</h3>
+          <div class="d-flex align-center justify-between">
+            <span class="text-body-2">
+              SCX RSS Reader · {{ $t('about.version') }} {{ appVersion }}
+            </span>
+            <v-btn
+              :loading="isCheckingUpdate"
+              :disabled="isCheckingUpdate"
+              color="primary"
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-cellphone-link"
+              @click="handleCheckUpdate"
+            >
+              {{ isCheckingUpdate ? $t('update.checking') : $t('update.checkForUpdates') }}
+            </v-btn>
+          </div>
+        </div>
       </v-card-text>
 
       <v-divider />

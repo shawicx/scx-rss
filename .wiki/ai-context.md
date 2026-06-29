@@ -8,10 +8,11 @@
 Frontend (Vue 3) → IPC (Tauri) → Backend (Rust) → SQLite
 ```
 
-- **Frontend**: 9 个 Vuetify 组件，9 个 Composables
-- **IPC**: 13 个 commands
-- **Backend**: 2 个 command 文件，5 个 core 模块
-- **Storage**: 3 个表（feeds, articles, fetch_logs）
+- **Frontend**: 9 个 Vuetify 组件，11 个 Composables（含 useI18n/useAutoUpdate）
+- **IPC**: 16 个 commands
+- **Backend**: 3 个 command 文件（db.rs, feed.rs, system.rs），5 个 core 模块
+- **Storage**: 4 个表（feeds, articles, fetch_logs, user_settings）
+- **自动更新**: 前端 `useAutoUpdate` 驱动，经 `@tauri-apps/plugin-updater` 检查 GitHub Releases 的 `latest.json`（minisign 验签）；Settings 提供手动检查入口。详见 [backend.md](backend.md#自动更新与签名)。
 
 ## 关键文件
 
@@ -19,12 +20,15 @@ Frontend (Vue 3) → IPC (Tauri) → Backend (Rust) → SQLite
 |------|------|
 | `src-tauri/src/main.rs` | 应用入口，插件初始化 |
 | `src-tauri/src/commands/feed.rs` | Feed 拉取、刷新（6 个命令） |
-| `src-tauri/src/commands/db.rs` | 数据库 CRUD（8 个命令） |
+| `src-tauri/src/commands/db.rs` | 数据库 CRUD（10 个命令） |
 | `src-tauri/src/core/network.rs` | HTTP 客户端（15s 超时，3 次重试） |
 | `src-tauri/src/core/parser.rs` | RSS/Atom 解析 |
 | `src-tauri/src/core/database.rs` | SQLite 操作 |
+| `src-tauri/src/commands/system.rs` | 系统语言检测 |
 | `src/composables/useFeeds.ts` | Feed 业务逻辑 |
 | `src/composables/useArticles.ts` | 文章业务逻辑 |
+| `src/composables/useI18n.ts` | 国际化管理 |
+| `src/i18n.ts` | vue-i18n 配置 |
 
 ## 核心调用链
 
@@ -84,6 +88,19 @@ author, published_at, is_read, is_starred, created_at
 ### 唯一约束
 - `(feed_id, link)` - 防止重复文章
 
+### user_settings
+```rust
+key (PK), value, updated_at
+```
+
+## 国际化 (i18n)
+
+- **方案**: vue-i18n (前端) + sys-locale (后端系统语言检测)
+- **支持语言**: zh-CN（默认）、en
+- **持久化**: 语言偏好存储在 `user_settings` 表（key='language'）
+- **错误翻译**: Rust 返回错误码（`errors.network`），前端 `$t()` 翻译
+- **详细文档**: [architecture.md](architecture.md#国际化-i18n)
+
 ## 性能特性
 
 | 操作 | 耗时 |
@@ -124,7 +141,7 @@ author, published_at, is_read, is_starred, created_at
 ## Token 优化
 
 优先阅读：
-1. [ai-context.md](.wiki/ai-context.md) (本文件)
-2. [architecture.md](.wiki/architecture.md)
-3. [ipc.md](.wiki/ipc.md)
-4. [risks.md](.wiki/risks.md)
+1. [ai-context.md](./ai-context.md) (本文件)
+2. [architecture.md](./architecture.md)
+3. [ipc.md](./ipc.md)
+4. [risks.md](./risks.md)

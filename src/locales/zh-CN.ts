@@ -105,6 +105,24 @@ export default {
     info: '提示',
   },
 
+  // 自动更新
+  update: {
+    available: '发现新版本',
+    newVersion: '新版本 {version} 可用',
+    updateNow: '立即更新',
+    later: '以后再说',
+    downloading: '正在下载更新...',
+    ready: '更新已就绪',
+    readyDescription: '更新已下载完成，重启以安装',
+    restart: '立即重启',
+    failed: '更新检查失败',
+    retry: '重试',
+    close: '关闭',
+    upToDate: '已是最新版本',
+    checkForUpdates: '检查更新',
+    checking: '检查中...',
+  },
+
   // 版本信息
   about: {
     version: '版本',

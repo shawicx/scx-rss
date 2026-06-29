@@ -105,6 +105,24 @@ export default {
     info: 'Info',
   },
 
+  // Auto Update
+  update: {
+    available: 'Update Available',
+    newVersion: 'A new version {version} is available',
+    updateNow: 'Update Now',
+    later: 'Later',
+    downloading: 'Downloading update...',
+    ready: 'Update Ready',
+    readyDescription: 'Update downloaded, restart to install',
+    restart: 'Restart Now',
+    failed: 'Update check failed',
+    retry: 'Retry',
+    close: 'Close',
+    upToDate: 'You are on the latest version',
+    checkForUpdates: 'Check for updates',
+    checking: 'Checking...',
+  },
+
   // About
   about: {
     version: 'Version',

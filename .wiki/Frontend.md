@@ -18,6 +18,24 @@ App.vue
 
 ## 关键 Composables
 
+### useI18n.ts
+**作用**: 国际化管理
+
+**核心方法**:
+- `init()` - 初始化语言设置（从数据库读取或检测系统语言）
+- `setLocale(locale)` - 设置语言（'zh-CN' | 'en' | 'system'），持久化到数据库
+- `getSystemLocale()` - 获取系统语言（通过 Rust 后端 `get_system_locale` 命令）
+
+**数据流**:
+```
+init()
+  → invoke('get_user_setting', { key: 'language' })
+  → 值为 'system' 或 null → invoke('get_system_locale') → 检测系统语言
+  → 值为 'zh-CN' 或 'en' → 直接使用
+```
+
+**语言文件**: `src/locales/zh-CN.ts`、`src/locales/en.ts`
+
 ### useFeeds.ts
 **作用**: Feed 管理业务逻辑
 

@@ -11,11 +11,14 @@ import { useToast } from '@/composables/useToast'
 import { useTheme } from '@/composables/useTheme'
 import { useResizable } from '@/composables/useResizable'
 import { useI18n } from '@/composables/useI18n'
+import { useAutoUpdate } from '@/composables/useAutoUpdate'
+import UpdateDialog from '@/components/UpdateDialog.vue'
 import { STORAGE_KEYS } from '@/utils/constants'
 
 const { showError } = useToast()
 useTheme()
 const { init } = useI18n()
+const { startCheck } = useAutoUpdate()
 
 const currentFeedId = ref<number | undefined>(undefined)
 const currentArticle = ref<Article | undefined>(undefined)
@@ -39,6 +42,7 @@ onMounted(async () => {
   try {
     await invoke('init_db')
     await init()
+    startCheck()
     isInitialized.value = true
   } catch (error) {
     console.error('数据库初始化失败:', error)
@@ -88,6 +92,7 @@ const handleArticleSelected = (article: Article) => {
         <ArticleView :article="currentArticle" />
       </main>
 
+      <UpdateDialog />
       <ToastContainer />
     </div>
   </v-app>
